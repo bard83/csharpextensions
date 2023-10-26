@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.1] - 2023-10-25
+
+### Fixed
+
+- Fixed extension name.
+
 ## [1.8.0] - 2023-10-25
 
 ### Added
