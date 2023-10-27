@@ -45,4 +45,26 @@ jobs:
       if: runner.os == 'Linux'
     - run: yarn test
       if: runner.os != 'Linux'
-  
+
+  bump-minor:
+    name: Update Changelog
+    runs-on: ubuntu-latest
+    env:
+      PUSH_PACKAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        if: ${{ env.PUSH_PACKAGES }}
+        uses: actions/checkout@v3
+        with:
+            ref: master
+      - name: Bump version for next release
+        if: ${{ env.PUSH_PACKAGES }}
+        run: |
+          VERSION=$(perl -ne 'while (m|"version"\W+([\d\.]+)|g) {print "$1"}' package.json)
+          NEXT_VERSION=$(echo "$VERSION" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e')
+          echo "Increasing version to $NEXT_VERSION"
+          perl -pi -e "s|(\"version\"\W+)([\d\.]+)|\${1}${NEXT_VERSION}|" package.json
+          git commit -a -m "Increased version when PR merged to $NEXT_VERSION [skip ci]"
+          git push
