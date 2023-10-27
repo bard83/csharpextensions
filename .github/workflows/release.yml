@@ -6,70 +6,33 @@ on:
 
 env:
   NODE_VERSION: '16'
-  EXTENSION_OUTPUT_FILE: 'csharpextensions.vsix'
 
 jobs:
-  update:
-    name: Update Changelog
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-            ref: master
-
-      - name: Update Changelog
-        uses: stefanzweifel/changelog-updater-action@v1
-        with:
-            release-notes: ${{ github.event.release.body }}
-            latest-version: ${{ github.event.release.name }}
-
-      - name: Commit updated CHANGELOG
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-            branch: master
-            commit_message: Update CHANGELOG
-            file_pattern: CHANGELOG.md
-
   prepare:
     name: Prepare
     runs-on: ubuntu-latest
-    needs: update
-    if: "success()"
     steps:
     - name: Prepare build
       uses: DerYeger/yarn-setup-action@master
       with:
         node-version: ${{ env.NODE_VERSION }}
 
-  package:
-    name: Package
+  bump-minor:
+    name: Update Changelog
     runs-on: ubuntu-latest
-    needs: prepare
-    if: "success()"
+    permissions:
+      contents: write
     steps:
-    - name: Prepare Package
-      uses: DerYeger/yarn-setup-action@master
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-    - name: Yarn package
-      run: yarn package -o ${{ env.EXTENSION_OUTPUT_FILE }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+            ref: master
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.EXTENSION_OUTPUT_FILE }}
-        path: ${{ env.EXTENSION_OUTPUT_FILE }}
-        retention-days: 30
-    - name: Publish Patch
-      run: yarn publish --patch
-      env:
-        VSCE_PAT: ${{ secrets.VSCE_PAT }}
-      if: "contains(github.event.release.body, 'Fixed')"
-    - name: Publish Minor
-      run: yarn publish --minor
-      env:
-        VSCE_PAT: ${{ secrets.VSCE_PAT }}
-      if: "contains(github.event.release.body, 'Added')"
-    - name: Push tags
-      run: git push --tags
+      - name: Bump version for next release
+        run: |
+          VERSION=$(perl -ne 'while (m|"version"\W+([\d\.]+)|g) {print "$1"}' package.json)
+          NEXT_VERSION=$(echo "$VERSION" | perl -pe 's/^(\d+)(\.)(\d+).*$/$1.$2.($3+1).$2.0/e')
+          echo "Increasing version to $NEXT_VERSION"
+          perl -pi -e "s|(\"version\"\W+)([\d\.]+)|\${1}${NEXT_VERSION}|" package.json
+          git commit -a -m "Increased version after release publication to $NEXT_VERSION [skip ci]"
+          git push
