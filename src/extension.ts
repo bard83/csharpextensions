@@ -88,13 +88,13 @@ export class Extension {
         }) as string;
 
         if (newFilename.endsWith('.cs')) newFilename = newFilename.substring(0, newFilename.length - 3);
+        const configuration = vscode.workspace.getConfiguration();
 
         const incomingPath = maybeIncomingPath.value();
         const templatesPath = path.join(extension.extensionPath, Extension.TemplatesPath);
         const pathWithoutExtension = `${incomingPath}${path.sep}${newFilename}`;
 
         const { templates } = mapping;
-        const configuration = vscode.workspace.getConfiguration();
         const eol = configuration.get('file.eol', EOL);
         const usingsInclude = configuration.get(`${EXTENSION_NAME}.usings.include`, true);
         const usingsImplicit = configuration.get(`${EXTENSION_NAME}.usings.implicit`, true);
@@ -219,10 +219,4 @@ export class Extension {
 
         return this.KnownCommands;
     }
-}
-
-interface RegisterCommandCallbackArgument {
-    _fsPath: string,
-    fsPath: string,
-    path: string,
 }
