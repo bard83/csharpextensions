@@ -96,10 +96,19 @@
             {
                 "command": "csharpextensions.createMSTest",
                 "title": "MSTest"
+            },
+            {
+                "command": "csharpextensions.createFromTemplate",
+                "title": "Template"
             }
         ],
         "menus": {
             "file/newFile": [
+                {
+                    "command": "csharpextensions.createFromTemplate",
+                    "group": "file",
+                    "when": "!virtualWorkspace"
+                },
                 {
                     "command": "csharpextensions.createClass",
                     "group": "file",
@@ -186,6 +195,10 @@
                 {
                     "group": "30_test@2",
                     "command": "csharpextensions.createMSTest"
+                },
+                {
+                    "group": "40_basics@0",
+                    "command": "csharpextensions.createFromTemplate"
                 }
             ],
             "explorer/context": [
@@ -197,8 +210,51 @@
             ]
         },
         "configuration": {
-            "title": "C# Extensions configuration",
+            "title": "C# Extension",
             "properties": {
+                "csharpextensions.templates": {
+                    "type": "object",
+                    "description": "Defines a custom template",
+                    "required": [
+                        "items"
+                    ],
+                    "properties": {
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": ["name", "construct"],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Name of the template"
+                                    },
+                                    "construct": {
+                                        "type": "string",
+                                        "description": "supported construct",
+                                        "enum": [ "class", "struct", "interface"]
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Describes the template"
+                                    },
+                                    "header": {
+                                        "type": "string",
+                                        "description": "Used to define all the necessary imports. The namespace will be automatically generated, must be not definied"
+                                    },
+                                    "declaration": {
+                                        "type": "string",
+                                        "description": "class or interfaces (extended or implemented) or any other declaration after the name. Colon will always pre-pended"
+                                    },
+                                    "body": {
+                                        "type": "string",
+                                        "description": "All that is relevant for the body definition. i.e. members, methods, properties, etc."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "csharpextensions.privateMemberPrefix": {
                     "type": "string",
                     "default": "",
