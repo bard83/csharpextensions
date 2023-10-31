@@ -90,6 +90,33 @@ export class Extension {
         if (newFilename.endsWith('.cs')) newFilename = newFilename.substring(0, newFilename.length - 3);
         const configuration = vscode.workspace.getConfiguration();
 
+        let customTemplate = undefined;
+
+        if (mapping.command === 'createFromTemplate') {
+            const customTemplates = configuration.get<CustomTemplateConfig | undefined>(`${EXTENSION_NAME}.templates`, undefined);
+            if (customTemplates === undefined || !customTemplates.items.length) {
+                vscode.window.showInformationMessage('You haven\'t define any custom templates yet.');
+
+                return;
+            }
+
+            const { items } = customTemplates;
+            const selectedTemplate = await vscode.window.showQuickPick(items.map((i, index) => `${i.name}-${index}`), {
+                canPickMany: false,
+            });
+            if (!selectedTemplate) {
+                return;
+            }
+
+            customTemplate = customTemplates.items[parseInt(selectedTemplate.split('-')[1])];
+        }
+
+        if (!customTemplate && mapping.command === 'createFromTemplate') {
+            vscode.window.showErrorMessage('An error might be occurred during the custom template selection');
+
+            return;
+        }
+
         const incomingPath = maybeIncomingPath.value();
         const templatesPath = path.join(extension.extensionPath, Extension.TemplatesPath);
         const pathWithoutExtension = `${incomingPath}${path.sep}${newFilename}`;

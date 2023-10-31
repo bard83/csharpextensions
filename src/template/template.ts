@@ -129,6 +129,7 @@ export default class Template {
             case TemplateType.NUnit:
             case TemplateType.XUnit:
             case TemplateType.RazorPageClass:
+            case TemplateType.CustomTemplate:
                 return '.cs';
             case TemplateType.UWPPageClass:
             case TemplateType.UWPUserControllClass:
@@ -187,6 +188,8 @@ export default class Template {
                 return 'uwp_usercontrol';
             case TemplateType.UWPWindowXml:
                 return 'uwp_window';
+            default:
+                throw new Error(`Not supported template ${TemplateType[type]}`);
         }
     }
 
