@@ -49,18 +49,16 @@ jobs:
   bump-minor:
     name: Bump patch version
     runs-on: ubuntu-latest
-    env:
-      PUSH_PACKAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     permissions:
       contents: write
     steps:
       - name: Checkout code
-        if: ${{ env.PUSH_PACKAGES }}
         uses: actions/checkout@v3
         with:
             ref: master
       - name: Bump version for next release
-        if: ${{ env.PUSH_PACKAGES }}
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -70,7 +68,6 @@ jobs:
           perl -pi -e "s|(\"version\"\W+)([\d\.]+)|\${1}${NEXT_VERSION}|" package.json
           git commit -a -m "Increased version when PR merged to $NEXT_VERSION [skip ci]"
       - name: Push changes
-        if: ${{ env.PUSH_PACKAGES }}
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
