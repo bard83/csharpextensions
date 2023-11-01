@@ -102,14 +102,14 @@ export class Extension {
             }
 
             const { items } = customTemplates;
-            const selectedTemplate = await vscode.window.showQuickPick(items.map((i, index) => `${i.name}-${index}`), {
+            const selectedTemplate = await vscode.window.showQuickPick(items.map((i, index) => `${index}-${i.name}-${i.description}`), {
                 canPickMany: false,
             });
             if (!selectedTemplate) {
                 return;
             }
 
-            customTemplate = customTemplates.items[parseInt(selectedTemplate.split('-')[1])];
+            customTemplate = customTemplates.items[parseInt(selectedTemplate.split('-')[0])];
         }
 
         if (!customTemplate && mapping.command === 'createFromTemplate') {

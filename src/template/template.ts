@@ -64,7 +64,9 @@ export default class Template {
                 ? `: ${customTemplate.declaration}`
                 : '';
             const body = customTemplate.body || '';
-            content = content.replace('${construct}', customTemplate.construct)
+            content = content
+                .replace('${visibility}', customTemplate.visibility || '')
+                .replace('${construct}', customTemplate.construct)
                 .replace('${declaration}', declaration)
                 .replace('${body}', body);
         }

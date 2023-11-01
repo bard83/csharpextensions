@@ -223,11 +223,16 @@
                             "type": "array",
                             "items": {
                                 "type": "object",
-                                "required": ["name", "construct"],
+                                "required": ["name", "construct", "description"],
                                 "properties": {
                                     "name": {
                                         "type": "string",
                                         "description": "Name of the template"
+                                    },
+                                    "visibility": {
+                                        "type": "string",
+                                        "description": "Visibility i.e. public, private",
+                                        "enum": [ "public", "private", "protected", "internal", "protected internal", "private protected"]
                                     },
                                     "construct": {
                                         "type": "string",

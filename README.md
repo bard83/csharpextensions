@@ -41,6 +41,7 @@ The custom template must be defined in the vscode `settings.json` file. Access t
 ```json
 {
     "name": "MyCustomTemplate",
+    "visibility": "public",
     "construct": "class",
     "description": "My awesome c# template",
     "header": "using System;\nusing System.Runtime.Serialization;\nusing System.Text.Json;",
@@ -49,15 +50,21 @@ The custom template must be defined in the vscode `settings.json` file. Access t
 }
 ```
 
+`visibility` C# component visibility (public, private and etc...);
+
 `construct` actually supported `class`, `interface` and `struct`;
 
 `header` is used to group all the necessary usings module. Each using must be separated by a `;`. The keyword `using` or the new line `\n` can be omitted. "using System;\nusing System.Runtime.Serialization;\nusing System.Text.Json;" and "System;System.Runtime.Serialization;System.Text.Json" produce the same output. Implicit usings rules will be applied.
 
-`declaration` used to append all the necessary extended or implemented class or interface. The colon before the declaration will be automatically added. It could be used to add also genirc clauses.
+`declaration` used to append all the necessary extended or implemented class or interface. The colon before the declaration will be automatically added. It could be used to add also generic clauses.
 
 `body` body of template. It might be whatever C# code.
 
-Please note that the code defined inside thte custom template should be a valid C# code. This extension does not perform any validation on it.
+Please note that the code defined inside the custom template should be valid C# code. This extension does not perform any validation on it.
+
+**Add new custom template**
+
+![Add new custom template](./featureimages/customTemplate.gif)
 
 -----------------------------------------------------------------------------------------------------------
 

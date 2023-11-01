@@ -54,7 +54,7 @@ export default class CSharpFileCreator {
         if (this._templateConfiguration.getTemplateType() === TemplateType.CustomTemplate) {
             const templateContent = `\${namespaces}namespace \${namespace}
 {
-    public \${construct} \${classname}\${declaration}
+    \${visibility} \${construct} \${classname}\${declaration}
     {
         \${cursor}
 \${body}

@@ -7,8 +7,9 @@ interface RegisterCommandCallbackArgument {
 
 interface CustomTemplate {
     name: string;
+    visibility?: string;
     construct: string;
-    description?: string;
+    description: string;
     header?: string;
     declaration?: string;
     body?: string;
