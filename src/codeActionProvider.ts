@@ -19,6 +19,7 @@ import {
 import * as os from 'os';
 import { getEolSetting, log } from './util';
 import Result from './common/result';
+import { formatDocument } from './document/documentAction';
 
 const EMPTY = '';
 const SPACE = ' ';
@@ -57,7 +58,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
             codeActions.push(ctorActionResult.value());
         }
 
-        const bodyExpressionCtorAction =  this._buildCtorActions(document,  editor, 'Initialize body expression ctor from properties...', this._commandIds.bodyExpressionCtorFromProperties);
+        const bodyExpressionCtorAction = this._buildCtorActions(document, editor, 'Initialize body expression ctor from properties...', this._commandIds.bodyExpressionCtorFromProperties);
         if (bodyExpressionCtorAction.isOk()) {
             codeActions.push(bodyExpressionCtorAction.value());
         }
@@ -142,7 +143,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
             .map(prop => `this.${prop.name}`).join(' , ');
         const tupleRight = args.properties
             .map(prop => `${this.camelize(prop.name)}`).join(' , ');
-        const assignment = args.properties.length === 1 ? `${tupleLeft} = ${tupleRight}`: `(${tupleLeft}) = (${tupleRight})`;
+        const assignment = args.properties.length === 1 ? `${tupleLeft} = ${tupleRight}` : `(${tupleLeft}) = (${tupleRight})`;
 
         const { modifier, className } = args.classDefinition;
 
@@ -174,15 +175,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
 
     private async formatDocument(documentUri: Uri) {
         try {
-            const formattingEdits = await commands.executeCommand<TextEdit[]>('vscode.executeFormatDocumentProvider', documentUri,);
-
-            if (formattingEdits !== undefined) {
-                const formatEdit = new WorkspaceEdit();
-
-                formatEdit.set(documentUri, formattingEdits);
-
-                workspace.applyEdit(formatEdit);
-            }
+            await formatDocument(documentUri);
         } catch (err) {
             log('Error trying to format document - ', err);
         }
