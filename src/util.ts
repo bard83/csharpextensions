@@ -5,14 +5,14 @@ let logChannel: OutputChannel | undefined;
 
 function getLogChannel(): OutputChannel {
     if (!logChannel) {
-        logChannel = window.createOutputChannel('csharpextensions');
+        logChannel = window.createOutputChannel('C# Extension');
     }
 
     return logChannel;
 }
 
-function combineMessage(message: string, error: object | string | unknown | undefined): string {
-    if (!error) return message;
+function combineMessage(message: string | object, error: object | string | unknown | undefined): string {
+    if (!error) return JSON.stringify(message);
 
     const errLog: { error: unknown, internalError: unknown } = {
         error,
@@ -25,10 +25,10 @@ function combineMessage(message: string, error: object | string | unknown | unde
 
     const errLogJson = JSON.stringify(errLog);
 
-    return `${message} - ${errLogJson}`;
+    return `${JSON.stringify(message)} - ${errLogJson}`;
 }
 
-export function log(message: string, error: object | string | unknown | undefined = undefined) {
+export function log(message: string | object, error: object | string | unknown | undefined = undefined) {
     const log = getLogChannel();
     const combinedMessage = combineMessage(message, error);
 
