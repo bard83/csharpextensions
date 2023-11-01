@@ -58,6 +58,16 @@ export default class Template {
             .replace(Template.NamespaceRegex, namespace)
             .replace(Template.ClassnameRegex, filename)
             .replace('${namespaces}', this._handleUsings());
+        if (this._configuration.getTemplateType() === TemplateType.CustomTemplate) {
+            const customTemplate = this._configuration.getCustomTemplate() as CustomTemplate;
+            const declaration = customTemplate.declaration
+                ? `: ${customTemplate.declaration}`
+                : '';
+            const body = customTemplate.body || '';
+            content = content.replace('${construct}', customTemplate.construct)
+                .replace('${declaration}', declaration)
+                .replace('${body}', body);
+        }
 
         return content;
     }
@@ -93,14 +103,14 @@ export default class Template {
     }
 
     private _removeImplicitUsings(usings: string[], implicitUsings: Array<string>): string[] {
-        return usings.filter(using => ! implicitUsings.includes(using));
+        return usings.filter(using => !implicitUsings.includes(using));
     }
 
     private _handleUsings(): string {
         const includeNamespaces = this._configuration.getIncludeNamespaces();
         const skipImplicit = this._configuration.getUseImplicitUsings();
         const eol = this._configuration.getEolSettings();
-        let usings = this._configuration.getRequiredUsings();
+        let usings = this._handleWithCustomUsings();
         if (includeNamespaces) usings = usings.concat(this._configuration.getOptionalUsings());
         if (skipImplicit) usings = this._removeImplicitUsings(usings, this._configuration.getImplicitUsings());
 
@@ -116,7 +126,21 @@ export default class Template {
         return `${joinedUsings}${eol}${eol}`;
     }
 
-    public static getExtension(type: TemplateType ): string {
+    private _handleWithCustomUsings(): string[] {
+        if (this._configuration.getTemplateType() !== TemplateType.CustomTemplate) {
+            return this._configuration.getRequiredUsings();
+        }
+
+        const customTemplate = this._configuration.getCustomTemplate() as CustomTemplate;
+
+        if (!customTemplate.header) {
+            return [];
+        }
+
+        return customTemplate.header.split(';').map(u => u.replace('using', '').replace('\n', '').trim());
+    }
+
+    public static getExtension(type: TemplateType): string {
         switch (type) {
             case TemplateType.Class:
             case TemplateType.Inteface:
@@ -188,6 +212,8 @@ export default class Template {
                 return 'uwp_usercontrol';
             case TemplateType.UWPWindowXml:
                 return 'uwp_window';
+            case TemplateType.CustomTemplate:
+                return 'custom_template';
             default:
                 throw new Error(`Not supported template ${TemplateType[type]}`);
         }

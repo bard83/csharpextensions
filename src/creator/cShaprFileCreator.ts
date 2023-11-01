@@ -7,10 +7,6 @@ import TemplateConfiguration from '../template/templateConfiguration';
 import Result from '../common/result';
 import statuses from './fileCreatorStatus';
 
-export type CreatedFile = {
-    filePath: string,
-    cursorPositionArray: number[] | null,
-}
 
 export default class CSharpFileCreator {
     private _template: TemplateType;
@@ -29,15 +25,12 @@ export default class CSharpFileCreator {
             return Result.error<CreatedFile>(statuses.fileExistingError, `File already exists: ${destinationFilePath}`);
         }
 
-        const templatePath = Template.getTemplatePath(templatesPath, this._template);
-        let templateContent: string;
-        try {
-            templateContent = await FileHandler.read(templatePath);
-        } catch (e) {
-            const error = e as ExtensionError;
-
-            return Result.error<CreatedFile>(statuses.readingTemplateError, error.toString());
+        const templateContentResult = await this.handleTemplateContent(templatesPath);
+        if (templateContentResult.isErr()) {
+            return Result.error<CreatedFile>(templateContentResult.status(), templateContentResult.info());
         }
+
+        const templateContent = templateContentResult.value();
 
         const template = new Template(this._template, templateContent, this._templateConfiguration);
         const namespaceDetector = new NamespaceDetector(pathWithoutExtension);
@@ -55,6 +48,33 @@ export default class CSharpFileCreator {
         const cursorPositionArray = template.findCursorInTemplate(newFilename, namespace);
 
         return Result.ok<CreatedFile>({ filePath: destinationFilePath, cursorPositionArray: cursorPositionArray });
+    }
+
+    private async handleTemplateContent(templatesPath: string): Promise<Result<string>> {
+        if (this._templateConfiguration.getTemplateType() === TemplateType.CustomTemplate) {
+            const templateContent = `\${namespaces}namespace \${namespace}
+{
+    public \${construct} \${classname}\${declaration}
+    {
+        \${cursor}
+\${body}
+    }
+}`;
+
+            return Result.ok<string>(templateContent);
+
+        }
+
+        const templatePath = Template.getTemplatePath(templatesPath, this._template);
+        try {
+            const templateContent = await FileHandler.read(templatePath);
+
+            return Result.ok<string>(templateContent);
+        } catch (e) {
+            const error = e as ExtensionError;
+
+            return Result.error<string>(statuses.readingTemplateError, error.toString());
+        }
     }
 
     public static create(templateConfiguration: TemplateConfiguration): Result<CSharpFileCreator> {

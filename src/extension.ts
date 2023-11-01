@@ -12,6 +12,7 @@ import TemplateConfiguration from './template/templateConfiguration';
 import CsprojReader from './project/csprojReader';
 import GlobalUsingFinder from './project/globalUsings';
 import { uniq } from 'lodash';
+import { formatDocument, openFile } from './document/documentAction';
 
 const EXTENSION_NAME = 'csharpextensions';
 
@@ -90,7 +91,7 @@ export class Extension {
         if (newFilename.endsWith('.cs')) newFilename = newFilename.substring(0, newFilename.length - 3);
         const configuration = vscode.workspace.getConfiguration();
 
-        let customTemplate = undefined;
+        let customTemplate: CustomTemplate | undefined = undefined;
 
         if (mapping.command === 'createFromTemplate') {
             const customTemplates = configuration.get<CustomTemplateConfig | undefined>(`${EXTENSION_NAME}.templates`, undefined);
@@ -154,6 +155,7 @@ export class Extension {
                 isTargetFrameworkAboveEqualNet6,
                 useImplicitUsings,
                 globalUsings,
+                customTemplate,
             )
                 .AndThen(config => CSharpFileCreator.create(config)
                     .AndThen(async creator => await creator.create(templatesPath, pathWithoutExtension, newFilename)));
@@ -182,23 +184,13 @@ export class Extension {
                 cursorPosition = new vscode.Position(createdFile.cursorPositionArray[0], createdFile.cursorPositionArray[1]);
             }
 
-            await this._openFile(createdFile.filePath, cursorPosition);
-        }));
-    }
-
-    private async _openFile(filePath: string, cursorPosition: vscode.Position | undefined): Promise<void> {
-        try {
-            const openedDoc = await vscode.workspace.openTextDocument(filePath);
-            const editor = await vscode.window.showTextDocument(openedDoc, { preview: false });
-
-            if (cursorPosition) {
-                const newSelection = new vscode.Selection(cursorPosition, cursorPosition);
-
-                editor.selection = newSelection;
+            try {
+                const uri = await openFile(createdFile.filePath, cursorPosition);
+                await formatDocument(uri);
+            } catch (err) {
+                log(`Error trying to open the file path ${createdFile.filePath}`, err);
             }
-        } catch (errOpeningFile) {
-            log(`Error trying to open '${filePath}'`, errOpeningFile);
-        }
+        }));
     }
 
     private static TemplatesPath = 'templates';

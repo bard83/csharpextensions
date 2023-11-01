@@ -27,6 +27,7 @@ export function createExtensionMappings(): Map<string, CommandMapping> {
     mapping.set('UWP_Window', getCommandMapping('createUwpWindow', [TemplateType.UWPWindowClass, TemplateType.UWPWindowXml]));
     mapping.set('UWP_Usercontrol', getCommandMapping('createUwpUserControl', [TemplateType.UWPUserControllClass, TemplateType.UWPUserControllXml]));
     mapping.set('UWP_Resource', getCommandMapping('createUwpResourceFile', [TemplateType.UWPResource]));
+    mapping.set('Template', getCommandMapping('createFromTemplate', [TemplateType.CustomTemplate]));
 
     return mapping;
 }

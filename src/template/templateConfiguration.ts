@@ -13,6 +13,7 @@ export default class TemplateConfiguration {
     private _optionalUsings: Array<string>;
     private _useImplicitUsings: boolean;
     private _implicitUsings: Array<string>;
+    private _customTemplate?: CustomTemplate;
 
     private constructor(
         templateType: TemplateType,
@@ -23,6 +24,7 @@ export default class TemplateConfiguration {
         optionalUsings: Array<string>,
         useImplicitUsings: boolean,
         implicitUsings: Array<string>,
+        customTemplate?: CustomTemplate
     ) {
         this._templateType = templateType;
         this._includeNamespaces = includeNamespaces;
@@ -32,6 +34,7 @@ export default class TemplateConfiguration {
         this._optionalUsings = optionalUsings;
         this._useImplicitUsings = useImplicitUsings;
         this._implicitUsings = implicitUsings;
+        this._customTemplate = customTemplate;
     }
 
     public getTemplateType(): TemplateType { return this._templateType; }
@@ -42,6 +45,7 @@ export default class TemplateConfiguration {
     public getOptionalUsings(): Array<string> { return this._optionalUsings; }
     public getUseImplicitUsings(): boolean { return this._useImplicitUsings; }
     public getImplicitUsings(): Array<string> { return this._implicitUsings; }
+    public getCustomTemplate(): CustomTemplate | undefined { return this._customTemplate; }
 
     public static create(
         type: TemplateType,
@@ -51,6 +55,7 @@ export default class TemplateConfiguration {
         isTargetFrameworkAboveNet6: boolean,
         useImplicitUsings: boolean,
         implictUsings: Array<string>,
+        customTemplate?: CustomTemplate
     ): Result<TemplateConfiguration> {
         if (type === TemplateType.Record && !isTargetFrameworkAboveNet6) {
             Result.error<TemplateConfiguration>(
@@ -58,6 +63,14 @@ export default class TemplateConfiguration {
                 'The target .NET framework does not support Record',
             );
         }
+
+        if (type !== TemplateType.CustomTemplate && customTemplate) {
+            Result.error<TemplateConfiguration>(
+                templateConfigurationStatuses.templateConfigurationCreationError,
+                'Inconsistent situation. Custom template can be used only with CustomTemplate type',
+            );
+        }
+
 
         const eolSettings = getEolSetting(eol);
         let canUseFileScopedNamespace = false;
@@ -78,6 +91,7 @@ export default class TemplateConfiguration {
                 optionalUsings,
                 useImplicitUsings,
                 implictUsings,
+                customTemplate,
             )
         );
     }
@@ -89,6 +103,7 @@ export default class TemplateConfiguration {
             case TemplateType.Enum:
             case TemplateType.Struct:
             case TemplateType.Record:
+            case TemplateType.CustomTemplate:
                 return [];
             case TemplateType.Controller:
                 return [
@@ -168,6 +183,7 @@ export default class TemplateConfiguration {
             case TemplateType.UWPPageXml:
             case TemplateType.RazorPageTemplate:
             case TemplateType.UWPResource:
+            case TemplateType.CustomTemplate:
                 return [];
             default:
                 throw new ExtensionError(`TemplateType ${TemplateType[type]} not supported for retrieving optional usings`);

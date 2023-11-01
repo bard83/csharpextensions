@@ -17,3 +17,8 @@ interface CustomTemplate {
 interface CustomTemplateConfig {
     items: [CustomTemplate];
 }
+
+type CreatedFile = {
+    filePath: string,
+    cursorPositionArray: number[] | null,
+}

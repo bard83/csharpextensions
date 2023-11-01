@@ -18,4 +18,5 @@ export enum TemplateType {
     UWPUserControllXml,
     UWPWindowClass,
     UWPWindowXml,
+    CustomTemplate,
 }
