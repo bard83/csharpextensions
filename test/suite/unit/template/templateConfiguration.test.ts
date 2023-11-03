@@ -6,6 +6,18 @@ import { EOL } from 'os';
 import Template from '../../../../src/template/template';
 
 suite('TemplateConfiguration', () => {
+    const handleCustomTemplate = (type: TemplateType) => {
+        let customTemplate = undefined;
+        if (type === TemplateType.CustomTemplate) {
+            customTemplate = {
+                construct: 'class',
+                description: 'test',
+                name: 'TestCustomTemplate',
+            };
+        }
+
+        return customTemplate as CustomTemplate;
+    };
     const allTypes: Array<TemplateType> = [
         TemplateType.Class,
         TemplateType.Inteface,
@@ -25,10 +37,28 @@ suite('TemplateConfiguration', () => {
         TemplateType.UWPUserControllXml,
         TemplateType.UWPWindowClass,
         TemplateType.UWPWindowXml,
+        TemplateType.CustomTemplate,
     ];
+    test(`create for type ${TemplateType[TemplateType.Record]} with wrong configuration`, () => {
+        // returns the wrong custom template instance
+        const configurationResult = TemplateConfiguration.create(TemplateType.Record, EOL, true, true, false, true, []);
+
+        assert.strictEqual(configurationResult.isErr(), true);
+    });
+
+    allTypes.forEach((type) => {
+        test(`create for type ${TemplateType[type]} with wrong configuration`, () => {
+            // returns the wrong custom template instance
+            const wrongTemplate = handleCustomTemplate(type === TemplateType.CustomTemplate ? TemplateType.Class : TemplateType.CustomTemplate);
+            const configurationResult = TemplateConfiguration.create(type, EOL, true, true, true, true, [], wrongTemplate);
+
+            assert.strictEqual(configurationResult.isErr(), true);
+        });
+    });
     allTypes.forEach((type) => {
         test(`create for type ${TemplateType[type]} with include namaspaces true, default eol, File scoped namespace for cs template true and use implicit using true`, () => {
-            const configurationResult = TemplateConfiguration.create(type, EOL, true, true, true, true, []);
+            const customTemplate = handleCustomTemplate(type);
+            const configurationResult = TemplateConfiguration.create(type, EOL, true, true, true, true, [], customTemplate);
 
             assert.strictEqual(configurationResult.isOk(), true);
             const configuration = configurationResult.value();
@@ -43,7 +73,8 @@ suite('TemplateConfiguration', () => {
     });
     allTypes.forEach((type) => {
         test(`create for type ${TemplateType[type]} with include namaspaces true, default eol, File scoped namespace for cs template true and use implicit using false`, () => {
-            const configurationResult = TemplateConfiguration.create(type, EOL, true, true, true, false, []);
+            const customTemplate = handleCustomTemplate(type);
+            const configurationResult = TemplateConfiguration.create(type, EOL, true, true, true, false, [], customTemplate);
 
             assert.strictEqual(configurationResult.isOk(), true);
             const configuration = configurationResult.value();
@@ -58,7 +89,8 @@ suite('TemplateConfiguration', () => {
     });
     allTypes.forEach((type) => {
         test(`create for type ${TemplateType[type]} with include namaspaces true, default eol and File scoped namespace  false`, () => {
-            const configurationResult = TemplateConfiguration.create(type, EOL, true, false, true, true, []);
+            const customTemplate = handleCustomTemplate(type);
+            const configurationResult = TemplateConfiguration.create(type, EOL, true, false, true, true, [], customTemplate);
 
             assert.strictEqual(configurationResult.isOk(), true);
             const configuration = configurationResult.value();
@@ -73,7 +105,8 @@ suite('TemplateConfiguration', () => {
     });
     allTypes.forEach((type) => {
         test(`create for type ${TemplateType[type]} with include namaspaces true, default eol and File scoped namespace  false and older target framework`, () => {
-            const configurationResult = TemplateConfiguration.create(type, EOL, true, false, false, true, []);
+            const customTemplate = handleCustomTemplate(type);
+            const configurationResult = TemplateConfiguration.create(type, EOL, true, false, false, true, [], customTemplate);
 
             if (type !== TemplateType.Record) {
                 assert.strictEqual(configurationResult.isOk(), true);
@@ -94,7 +127,8 @@ suite('TemplateConfiguration', () => {
     });
     allTypes.forEach((type) => {
         test(`create for type ${TemplateType[type]} with include namaspaces false and default eol and File scoped namespace for cs template true`, () => {
-            const configurationResult = TemplateConfiguration.create(type, EOL, false, true, true, true, []);
+            const customTemplate = handleCustomTemplate(type);
+            const configurationResult = TemplateConfiguration.create(type, EOL, false, true, true, true, [], customTemplate);
 
             assert.strictEqual(configurationResult.isOk(), true);
             const configuration = configurationResult.value();
@@ -109,7 +143,8 @@ suite('TemplateConfiguration', () => {
     });
     allTypes.forEach((type) => {
         test(`create for type ${TemplateType[type]} with include namaspaces false and default eol and File scoped namespace for cs template false`, () => {
-            const configurationResult = TemplateConfiguration.create(type, EOL, false, true, false, true, []);
+            const customTemplate = handleCustomTemplate(type);
+            const configurationResult = TemplateConfiguration.create(type, EOL, false, true, false, true, [], customTemplate);
 
             assert.strictEqual(configurationResult.isOk(), true);
             const configuration = configurationResult.value();
@@ -149,6 +184,7 @@ function getRequiredImports(type: TemplateType): Array<string> {
         case TemplateType.UWPPageClass:
         case TemplateType.UWPUserControllClass:
         case TemplateType.UWPWindowClass:
+        case TemplateType.CustomTemplate:
             expectedRequired = [];
             break;
         case TemplateType.Controller:
@@ -237,6 +273,7 @@ function getOptionalImports(type: TemplateType): Array<string> {
         case TemplateType.UWPPageXml:
         case TemplateType.RazorPageTemplate:
         case TemplateType.UWPResource:
+        case TemplateType.CustomTemplate:
             optionalImports = [];
             break;
         default:

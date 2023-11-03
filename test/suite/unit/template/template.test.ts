@@ -9,6 +9,18 @@ import TemplateConfiguration from '../../../../src/template/templateConfiguratio
 
 
 suite('Template', () => {
+    const handleCustomTemplate = (type: TemplateType) => {
+        let customTemplate = undefined;
+        if (type === TemplateType.CustomTemplate) {
+            customTemplate = {
+                construct: 'class',
+                description: 'test',
+                name: 'TestCustomTemplate',
+            };
+        }
+
+        return customTemplate as CustomTemplate;
+    };
     const globalNameSpace = 'Test.NameSpace';
     const allTypes: Array<TemplateType> = [
         TemplateType.Class,
@@ -30,6 +42,7 @@ suite('Template', () => {
         TemplateType.UWPUserControllXml,
         TemplateType.UWPWindowClass,
         TemplateType.UWPWindowXml,
+        TemplateType.CustomTemplate,
     ];
 
     allTypes.forEach((type) => {
@@ -49,6 +62,7 @@ suite('Template', () => {
                 case TemplateType.NUnit:
                 case TemplateType.XUnit:
                 case TemplateType.RazorPageClass:
+                case TemplateType.CustomTemplate:
                     expectedExtension = '.cs';
                     break;
                 case TemplateType.UWPPageClass:
@@ -134,6 +148,9 @@ suite('Template', () => {
                 case TemplateType.UWPWindowXml:
                     expectedName = 'uwp_window';
                     break;
+                case TemplateType.CustomTemplate:
+                    expectedName = 'custom_template';
+                    break;
                 default:
                     throw new Error(`Unexpected type: ${TemplateType[type]}`);
             }
@@ -149,7 +166,8 @@ suite('Template', () => {
             assert.strictEqual(path, `${testPath}${sep}${expectedTemplateFileName}`);
         });
         test(`Ctor works for type ${TemplateType[type]}`, () => {
-            const templateConfiguration = TemplateConfiguration.create(type, EOL, true, true, true, true, []).value();
+            const customTemplate = handleCustomTemplate(type);
+            const templateConfiguration = TemplateConfiguration.create(type, EOL, true, true, true, true, [], customTemplate).value();
             const template = new Template(type, '', templateConfiguration);
             assert.strictEqual(template.getName(), Template.RetriveName(type));
             assert.strictEqual(template.getContent(), '');
