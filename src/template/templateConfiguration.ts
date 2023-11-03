@@ -58,16 +58,16 @@ export default class TemplateConfiguration {
         customTemplate?: CustomTemplate
     ): Result<TemplateConfiguration> {
         if (type === TemplateType.Record && !isTargetFrameworkAboveNet6) {
-            Result.error<TemplateConfiguration>(
+            return Result.error<TemplateConfiguration>(
                 templateConfigurationStatuses.templateConfigurationCreationError,
                 'The target .NET framework does not support Record',
             );
         }
 
-        if (type !== TemplateType.CustomTemplate && customTemplate) {
-            Result.error<TemplateConfiguration>(
+        if (type !== TemplateType.CustomTemplate && customTemplate || type === TemplateType.CustomTemplate && !customTemplate) {
+            return Result.error<TemplateConfiguration>(
                 templateConfigurationStatuses.templateConfigurationCreationError,
-                'Inconsistent situation. Custom template can be used only with CustomTemplate type',
+                `Inconsistent situation for the template ${TemplateType[type]}. Passed the following custom template ${!customTemplate ? 'undefined' : JSON.stringify(customTemplate)}`,
             );
         }
 

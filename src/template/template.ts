@@ -139,7 +139,7 @@ export default class Template {
             return [];
         }
 
-        return customTemplate.header.split(';').map(u => u.replace('using', '').replace('\n', '').trim());
+        return customTemplate.header.split(';').map(u => u.replace('using', '').replace('\n', '').trim()).filter(l => l !== '');
     }
 
     public static getExtension(type: TemplateType): string {
