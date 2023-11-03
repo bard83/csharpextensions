@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.9.0] - 2023-11-03
+
+### Added
+
+- Custom templates can be defined now.
+
+### Fixed
+
+- Fixed minor issues.
+
 ## [1.8.1] - 2023-10-25
 
 ### Fixed
