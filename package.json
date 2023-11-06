@@ -324,7 +324,7 @@
         "@types/mocha": "^8.0.4",
         "@types/node": "^12.11.7",
         "@types/sinon": "^10.0.13",
-        "@types/vscode": "^1.56.0",
+        "@types/vscode": "^1.84.0",
         "@types/xml2js": "^0.4.9",
         "@typescript-eslint/eslint-plugin": "^5.17.0",
         "@typescript-eslint/parser": "^5.17.0",
