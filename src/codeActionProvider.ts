@@ -180,7 +180,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
     }
 
     private _buildCtorActions(document: TextDocument, editor: TextEditor, actionTitle: string, command: string): Result<CodeAction> {
-        return this._findCtorDefinitionAndProperties(document, editor)
+        return this._handleCtorDefinitionAndProperties(document, editor)
             .AndThenSync(classDefinition => {
                 const parameter: ConstructorFromPropertiesArgument = {
                     properties: classDefinition.properties,
@@ -201,7 +201,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
             });
     }
 
-    private _findCtorDefinitionAndProperties(document: TextDocument, editor: TextEditor): Result<CSharpClass> {
+    private _handleCtorDefinitionAndProperties(document: TextDocument, editor: TextEditor): Result<CSharpClass> {
         const position = editor.selection.active;
 
         return this._findFileScopedNamespace(document)
