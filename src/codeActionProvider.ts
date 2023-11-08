@@ -287,29 +287,6 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
     }
 }
 
-interface CSharpClassDefinition {
-    startLine: number,
-    endLine: number,
-    className: string,
-    modifier: string,
-    statement: string
-}
-
-interface CSharpPropertyDefinition {
-    class: CSharpClassDefinition,
-    modifier: string,
-    type: string,
-    name: string,
-    statement: string,
-    lineNumber: number
-}
-
-interface CSharpClass {
-    properties: CSharpPropertyDefinition[],
-    classDefinition: CSharpClassDefinition,
-    isFileScoped: boolean,
-}
-
 interface ConstructorFromPropertiesArgument {
     document: TextDocument,
     classDefinition: CSharpClassDefinition,
