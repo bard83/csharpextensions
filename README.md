@@ -45,6 +45,10 @@ The custom template must be defined in the vscode `settings.json` file. Access t
     "construct": "class",
     "description": "My awesome c# template",
     "header": "using System;\nusing System.Runtime.Serialization;\nusing System.Text.Json;",
+    "attributes": [
+        "DbContext(typeof(AppDbContext))",
+        "Migration(\"${classname}\")"
+    ],
     "declaration": "ISerializable, IEquatable",
     "body": "public void MyFancyMethod(string variable)\n{\n    System.Console.WriteLine(\"Hello World\");\n}"
 }
@@ -57,6 +61,8 @@ The custom template must be defined in the vscode `settings.json` file. Access t
 `header` is used to group all the necessary usings module. Each using must be separated by a `;`. The keyword `using` or the new line `\n` can be omitted. "using System;\nusing System.Runtime.Serialization;\nusing System.Text.Json;" and "System;System.Runtime.Serialization;System.Text.Json" produce the same output. Implicit usings rules will be applied.
 
 `declaration` used to append all the necessary extended or implemented class or interface. The colon before the declaration will be automatically added. It could be used to add also generic clauses.
+
+`attributes` used to specify the attributes for the construct. The attributes must be specified in a list of string. Using the placeholder `${classname}` the construct name will be replaced instead.
 
 `body` body of template. It might be whatever C# code.
 

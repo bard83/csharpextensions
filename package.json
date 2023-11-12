@@ -214,7 +214,7 @@
             "properties": {
                 "csharpextensions.templates": {
                     "type": "object",
-                    "markdownDescription": "Defines custom templates, based on the custom sections `header`, `construct`, `declaration` and `body`.\n\nMore details in the related documentation on the README file",
+                    "markdownDescription": "Defines custom templates, based on the custom sections `header`,`visibility`,`attributes`, `construct`, `declaration` and `body`.\n\nMore details in the related documentation on the README file",
                     "required": [
                         "items"
                     ],
@@ -261,6 +261,12 @@
                                     "header": {
                                         "type": "string",
                                         "description": "Used to define all the necessary imports. The namespace will be automatically generated, must be not definied"
+                                    },
+                                    "attributes" : {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     },
                                     "declaration": {
                                         "type": "string",

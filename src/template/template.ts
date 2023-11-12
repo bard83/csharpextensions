@@ -1,4 +1,4 @@
-import { sortBy, uniq } from 'lodash';
+import { isEmpty, sortBy, uniq } from 'lodash';
 import * as path from 'path';
 
 import { TemplateType } from './templateType';
@@ -64,7 +64,9 @@ export default class Template {
                 ? `: ${customTemplate.declaration}`
                 : '';
             const body = customTemplate.body || '';
+            const attributes = this._handleAttributes(filename);
             content = content
+                .replace('${attributes}', attributes || '')
                 .replace('${visibility}', customTemplate.visibility || '')
                 .replace('${construct}', customTemplate.construct)
                 .replace('${declaration}', declaration)
@@ -72,6 +74,19 @@ export default class Template {
         }
 
         return content;
+    }
+
+    private _handleAttributes(filename: string): string | undefined {
+        const customTemplate = this._configuration.getCustomTemplate() as CustomTemplate;
+        if (!customTemplate.attributes || isEmpty(customTemplate.attributes)) {
+            return undefined;
+        }
+
+        const eol = this._configuration.getEolSettings();
+
+        return `${customTemplate.attributes
+            .map(a => `[${a.replace('\n', '').replace('${classname}', filename)}]`)
+            .join(eol)}${eol}`;
     }
 
     /**

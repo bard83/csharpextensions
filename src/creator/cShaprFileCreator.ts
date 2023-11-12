@@ -52,9 +52,10 @@ export default class CSharpFileCreator {
 
     private async handleTemplateContent(templatesPath: string): Promise<Result<string>> {
         if (this._templateConfiguration.getTemplateType() === TemplateType.CustomTemplate) {
-            const templateContent = `\${namespaces}namespace \${namespace}
+            const templateContent = 
+`\${namespaces}namespace \${namespace}
 {
-    \${visibility} \${construct} \${classname}\${declaration}
+    \${attributes}\${visibility} \${construct} \${classname}\${declaration}
     {
         \${cursor}
 \${body}

@@ -11,6 +11,7 @@ interface CustomTemplate {
     construct: string;
     description: string;
     header?: string;
+    attributes?: Array<string>;
     declaration?: string;
     body?: string;
 }
