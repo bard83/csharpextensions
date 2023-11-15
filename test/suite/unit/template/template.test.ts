@@ -325,6 +325,43 @@ suite('Template', () => {
             assert.deepStrictEqual(result, [1, 1]);
         });
     });
+
+    test(`${TemplateType[TemplateType.CustomTemplate]} builds and checks attributes`, () => {
+        const customTemplate: CustomTemplate = {
+            name: 'MyCustomTemplate',
+            visibility: 'public',
+            construct: 'class',
+            description: 'My awesome c# template',
+            header: 'using System;\nusing System.Runtime.Serialization;\nusing System.Text.Json;',
+            attributes: [
+                'DbContext(typeof(AppDbContext))',
+                'Migration("${classname}")'
+            ],
+            declaration: 'ISerializable, IEquatable',
+            body: 'public void MyFancyMethod(string variable)\n{\n    System.Console.WriteLine("Hello World");\n}'
+        };
+        const templateContent =
+            `\${namespaces}namespace \${namespace}
+{
+    \${attributes}\${visibility} \${construct} \${classname}\${declaration}
+    {
+        \${cursor}
+\${body}
+    }
+}`;
+        const configuration = TemplateConfiguration.create(TemplateType.CustomTemplate, EOL, false, false, true, true, [], customTemplate).value();
+        const template = new Template(TemplateType.CustomTemplate, templateContent, configuration);
+        const result = template.build('test', globalNameSpace);
+
+        assert.notStrictEqual(result, '');
+        assert.strictEqual(result.includes(customTemplate.construct), true);
+        assert.strictEqual(result.includes(customTemplate.visibility!), true);
+        assert.strictEqual(result.includes(customTemplate.declaration!), true);
+        assert.strictEqual(result.includes(customTemplate.body!.replace(new RegExp(/\r?\n/g), EOL)), true);
+        const all = customTemplate
+            .attributes?.every((a) => result.includes(a.replace('${classname}', 'test')));
+        assert.strictEqual(all, true);
+    });
 });
 
 function mergeImports(arg1: Array<string>, arg2 = new Array<string>()): string {
