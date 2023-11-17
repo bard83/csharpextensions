@@ -1,11 +1,11 @@
 import { TemplateType } from '../template/templateType';
-import { ExtensionError } from '../util';
 import Template from '../template/template';
 import FileHandler from '../io/fileHandler';
 import NamespaceDetector from '../namespaceDetector';
 import TemplateConfiguration from '../template/templateConfiguration';
 import Result from '../common/result';
 import statuses from './fileCreatorStatus';
+import { ExtensionError } from '../errors/extensionError';
 
 
 export default class CSharpFileCreator {

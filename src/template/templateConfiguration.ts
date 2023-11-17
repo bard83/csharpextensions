@@ -1,8 +1,9 @@
-import { ExtensionError, getEolSetting } from '../util';
+import { getEolSetting } from '../util';
 import { TemplateType } from './templateType';
 import Template from './template';
 import Result from '../common/result';
 import templateConfigurationStatuses from './templateConfigurationStatuses';
+import { ExtensionError } from '../errors/extensionError';
 
 export default class TemplateConfiguration {
     private _templateType: TemplateType;

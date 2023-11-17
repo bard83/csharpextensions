@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import * as findupglob from 'find-up-glob';
 
-import { ExtensionError } from '../util';
+import { ExtensionError } from '../errors/extensionError';
 
 export default class FileHandler {
     public static async write(filePath: string, fileContent: string) {
