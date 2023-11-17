@@ -68,7 +68,9 @@ export default class Template {
                 ? `: ${customTemplate.declaration}`
                 : EMPTY;
             const visibility = customTemplate.visibility ? `${customTemplate.visibility}${SPACE}` : EMPTY;
-            const body = customTemplate.body || EMPTY;
+            const body = customTemplate.body 
+                ? customTemplate.body.replace(Template.ClassnameRegex, filename) 
+                : EMPTY;
             const attributes = this._handleAttributes(filename);
             const genericsWhereClauses = this._handleGenericsWhereClauses();
             content = content
