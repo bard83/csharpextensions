@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Parser } from 'xml2js';
-import { log } from '../util';
+import { log } from '../logging/log';
 
 import { Csproj, PropertyGroup, Using } from './csproj';
 import ProjectReader from './projectReader';

@@ -4,7 +4,7 @@ import * as path from 'path';
 import { EOL } from 'os';
 
 import CodeActionProvider from './codeActionProvider';
-import { log } from './util';
+import { log } from './logging/log';
 import CSharpFileCreator from './creator/cShaprFileCreator';
 import Maybe from './common/maybe';
 import { CommandMapping, createExtensionMappings } from './commandMapping';

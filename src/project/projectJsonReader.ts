@@ -1,5 +1,5 @@
 import { Uri, workspace } from 'vscode';
-import { log } from '../util';
+import { log } from '../logging/log';
 import ProjectReader from './projectReader';
 
 export default class ProjectJsonReader extends ProjectReader {

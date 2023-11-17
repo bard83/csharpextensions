@@ -17,9 +17,10 @@ import {
     Selection,
 } from 'vscode';
 import * as os from 'os';
-import { getEolSetting, log } from './util';
+import { getEolSetting } from './util';
 import Result from './common/result';
 import { formatDocument } from './document/documentAction';
+import { log } from './logging/log';
 
 const EMPTY = '';
 const SPACE = ' ';
