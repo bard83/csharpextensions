@@ -49,7 +49,13 @@ The custom template must be defined in the vscode `settings.json` file. Access t
         "DbContext(typeof(AppDbContext))",
         "Migration(\"${classname}\")"
     ],
+    "genericsDefinition": "I,J,K",
     "declaration": "ISerializable, IEquatable",
+    "genericsWhereClauses": [
+        "where I : class",
+        "where J : struct",
+        "where K : IMyInterface",
+    ],
     "body": "public void MyFancyMethod(string variable)\n{\n    System.Console.WriteLine(\"Hello World\");\n}"
 }
 ```
@@ -60,9 +66,13 @@ The custom template must be defined in the vscode `settings.json` file. Access t
 
 `header` is used to group all the necessary usings module. Each using must be separated by a `;`. The keyword `using` or the new line `\n` can be omitted. "using System;\nusing System.Runtime.Serialization;\nusing System.Text.Json;" and "System;System.Runtime.Serialization;System.Text.Json" produce the same output. Implicit usings rules will be applied.
 
+`genericsDefinition` used to specify the generics for the construct automatically enclosed between `<>`;
+
 `declaration` used to append all the necessary extended or implemented class or interface. The colon before the declaration will be automatically added. It could be used to add also generic clauses.
 
 `attributes` used to specify the attributes for the construct. The attributes must be specified in a list of string. Using the placeholder `${classname}` the construct name will be replaced instead.
+
+`genericsWhereClauses` used to define the generics where clauses inside the custom template.
 
 `body` body of template. It might be whatever C# code.
 

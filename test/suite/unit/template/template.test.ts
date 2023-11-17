@@ -337,13 +337,19 @@ suite('Template', () => {
                 'DbContext(typeof(AppDbContext))',
                 'Migration("${classname}")'
             ],
+            genericsDefinition: 'I,J,K',
             declaration: 'ISerializable, IEquatable',
+            genericsWhereClauses: [
+                'where I : class',
+                'where J : struct',
+                'where K : IMyInterface',
+            ],
             body: 'public void MyFancyMethod(string variable)\n{\n    System.Console.WriteLine("Hello World");\n}'
         };
         const templateContent =
             `\${namespaces}namespace \${namespace}
 {
-    \${attributes}\${visibility} \${construct} \${classname}\${declaration}
+    \${attributes}\${visibility} \${construct} \${classname}\${genericsDefinition}\${declaration}\${genericsWhereClauses}
     {
         \${cursor}
 \${body}
@@ -354,12 +360,19 @@ suite('Template', () => {
         const result = template.build('test', globalNameSpace);
 
         assert.notStrictEqual(result, '');
+        const allUsings = customTemplate.header?.split(';')
+            .every((u) => result.includes(u.replace('\n', '')));
+        assert.strictEqual(allUsings, true);
         assert.strictEqual(result.includes(customTemplate.construct), true);
         assert.strictEqual(result.includes(customTemplate.visibility!), true);
         assert.strictEqual(result.includes(customTemplate.declaration!), true);
         assert.strictEqual(result.includes(customTemplate.body!.replace(new RegExp(/\r?\n/g), EOL)), true);
+        assert.strictEqual(result.includes(`<${customTemplate.genericsDefinition!}>`), true);
         const all = customTemplate
             .attributes?.every((a) => result.includes(a.replace('${classname}', 'test')));
+        const allWhereClauses = customTemplate
+            .genericsWhereClauses?.every((u) => result.includes(u));
+        assert.strictEqual(allWhereClauses, true);
         assert.strictEqual(all, true);
     });
 });

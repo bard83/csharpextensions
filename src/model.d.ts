@@ -11,7 +11,9 @@ interface CustomTemplate {
     construct: string;
     description: string;
     header?: string;
+    genericsDefinition?: string;
     attributes?: Array<string>;
+    genericsWhereClauses?: Array<string>;
     declaration?: string;
     body?: string;
 }

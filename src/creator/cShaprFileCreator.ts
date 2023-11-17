@@ -55,7 +55,7 @@ export default class CSharpFileCreator {
             const templateContent = 
 `\${namespaces}namespace \${namespace}
 {
-    \${attributes}\${visibility} \${construct} \${classname}\${declaration}
+    \${attributes}\${visibility} \${construct} \${classname}\${genericsDefinition}\${declaration}\${genericsWhereClauses}
     {
         \${cursor}
 \${body}

@@ -268,9 +268,20 @@
                                             "type": "string"
                                         }
                                     },
+                                    "genericsDefinition": {
+                                        "type": "string",
+                                        "description": "Used to define the generic keys: i. e. I,J,K"
+                                    },
                                     "declaration": {
                                         "type": "string",
                                         "description": "class or interfaces (extended or implemented) or any other declaration after the name. Colon will always pre-pended"
+                                    },
+                                    "genericsWhereClauses" : {
+                                        "type": "array",
+                                        "description": "Defines the where clauses for the generics definition",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     },
                                     "body": {
                                         "type": "string",

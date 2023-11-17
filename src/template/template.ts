@@ -60,20 +60,37 @@ export default class Template {
             .replace('${namespaces}', this._handleUsings());
         if (this._configuration.getTemplateType() === TemplateType.CustomTemplate) {
             const customTemplate = this._configuration.getCustomTemplate() as CustomTemplate;
+            const genericsDefinition = customTemplate.genericsDefinition
+                ? `<${customTemplate.genericsDefinition}>`
+                : '';
             const declaration = customTemplate.declaration
                 ? `: ${customTemplate.declaration}`
                 : '';
             const body = customTemplate.body || '';
             const attributes = this._handleAttributes(filename);
+            const genericsWhereClauses = this._handleGenericsWhereClauses();
             content = content
                 .replace('${attributes}', attributes || '')
                 .replace('${visibility}', customTemplate.visibility || '')
                 .replace('${construct}', customTemplate.construct)
+                .replace('${genericsDefinition}', genericsDefinition)
                 .replace('${declaration}', declaration)
+                .replace('${genericsWhereClauses}', genericsWhereClauses || '')
                 .replace('${body}', body);
         }
 
         return content;
+    }
+    private _handleGenericsWhereClauses() {
+        const customTemplate = this._configuration.getCustomTemplate() as CustomTemplate;
+        if (!customTemplate.genericsWhereClauses || isEmpty(customTemplate.genericsWhereClauses)) {
+            return undefined;
+        }
+
+        const eol = this._configuration.getEolSettings();
+
+        return `${eol}${customTemplate.genericsWhereClauses
+            .join(eol)}`;
     }
 
     private _handleAttributes(filename: string): string | undefined {
