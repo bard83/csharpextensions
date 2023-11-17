@@ -3,6 +3,7 @@ import * as path from 'path';
 
 import { TemplateType } from './templateType';
 import TemplateConfiguration from './templateConfiguration';
+import { EMPTY, SPACE, getIndentation } from '../util';
 
 export default class Template {
     private static readonly ClassnameRegex = new RegExp(/\${classname}/, 'g');
@@ -44,7 +45,7 @@ export default class Template {
 
     public build(filename: string, namespace: string): string {
         return this._partialBuild(filename, namespace)
-            .replace('${cursor}', '')
+            .replace('${cursor}', EMPTY)
             .replace(Template.EolRegex, this._configuration.getEolSettings());
     }
 
@@ -62,20 +63,21 @@ export default class Template {
             const customTemplate = this._configuration.getCustomTemplate() as CustomTemplate;
             const genericsDefinition = customTemplate.genericsDefinition
                 ? `<${customTemplate.genericsDefinition}>`
-                : '';
+                : EMPTY;
             const declaration = customTemplate.declaration
                 ? `: ${customTemplate.declaration}`
-                : '';
-            const body = customTemplate.body || '';
+                : EMPTY;
+            const visibility = customTemplate.visibility ? `${customTemplate.visibility}${SPACE}` : EMPTY;
+            const body = customTemplate.body || EMPTY;
             const attributes = this._handleAttributes(filename);
             const genericsWhereClauses = this._handleGenericsWhereClauses();
             content = content
-                .replace('${attributes}', attributes || '')
-                .replace('${visibility}', customTemplate.visibility || '')
+                .replace('${attributes}', attributes || EMPTY)
+                .replace('${visibility}', visibility)
                 .replace('${construct}', customTemplate.construct)
                 .replace('${genericsDefinition}', genericsDefinition)
                 .replace('${declaration}', declaration)
-                .replace('${genericsWhereClauses}', genericsWhereClauses || '')
+                .replace('${genericsWhereClauses}', genericsWhereClauses || EMPTY)
                 .replace('${body}', body);
         }
 
@@ -89,7 +91,11 @@ export default class Template {
 
         const eol = this._configuration.getEolSettings();
 
+        const indentationLevel = this._configuration.getUseFileScopedNamespace() ? 1 : 2;
+        const indentation = getIndentation(4, indentationLevel);
+
         return `${eol}${customTemplate.genericsWhereClauses
+            .map((gwc) => `${indentation}${gwc}`)
             .join(eol)}`;
     }
 
@@ -100,9 +106,11 @@ export default class Template {
         }
 
         const eol = this._configuration.getEolSettings();
+        const indentationLevel = this._configuration.getUseFileScopedNamespace() ? 0 : 1;
+        const indentation = indentationLevel > 0 ? getIndentation(4, indentationLevel) : EMPTY;
 
         return `${customTemplate.attributes
-            .map(a => `[${a.replace('\n', '').replace('${classname}', filename)}]`)
+            .map(a => `[${indentation}${a.replace('\n', EMPTY).replace('${classname}', filename)}]`)
             .join(eol)}${eol}`;
     }
 
@@ -130,7 +138,7 @@ export default class Template {
      */
     private _getFileScopedNamespaceFormOfTemplate(template: string): string {
         const result = template
-            .replace(Template.NamespaceBracesRegex, '')
+            .replace(Template.NamespaceBracesRegex, EMPTY)
             .replace(Template.NamespaceRegexForScoped, ';');
 
         return result;
@@ -171,7 +179,7 @@ export default class Template {
             return [];
         }
 
-        return customTemplate.header.split(';').map(u => u.replace('using', '').replace('\n', '').trim()).filter(l => l !== '');
+        return customTemplate.header.split(';').map(u => u.replace('using', EMPTY).replace('\n', EMPTY).trim()).filter(l => l !== EMPTY);
     }
 
     public static getExtension(type: TemplateType): string {
