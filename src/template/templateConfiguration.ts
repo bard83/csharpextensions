@@ -10,6 +10,8 @@ export default class TemplateConfiguration {
     private _includeNamespaces: boolean;
     private _useFileScopedNamespace: boolean;
     private _eolSettings: string;
+    private _tabSize: number;
+    private _useSpaces: boolean;
     private _requiredUsings: Array<string>;
     private _optionalUsings: Array<string>;
     private _useImplicitUsings: boolean;
@@ -25,7 +27,9 @@ export default class TemplateConfiguration {
         optionalUsings: Array<string>,
         useImplicitUsings: boolean,
         implicitUsings: Array<string>,
-        customTemplate?: CustomTemplate
+        tabSize: number,
+        useSpaces: boolean,
+        customTemplate?: CustomTemplate,
     ) {
         this._templateType = templateType;
         this._includeNamespaces = includeNamespaces;
@@ -36,6 +40,8 @@ export default class TemplateConfiguration {
         this._useImplicitUsings = useImplicitUsings;
         this._implicitUsings = implicitUsings;
         this._customTemplate = customTemplate;
+        this._tabSize = tabSize;
+        this._useSpaces = useSpaces;
     }
 
     public getTemplateType(): TemplateType { return this._templateType; }
@@ -47,6 +53,8 @@ export default class TemplateConfiguration {
     public getUseImplicitUsings(): boolean { return this._useImplicitUsings; }
     public getImplicitUsings(): Array<string> { return this._implicitUsings; }
     public getCustomTemplate(): CustomTemplate | undefined { return this._customTemplate; }
+    public getTabSize(): number { return this._tabSize; }
+    public getUseSapces(): boolean{ return this._useSpaces; }
 
     public static create(
         type: TemplateType,
@@ -56,8 +64,17 @@ export default class TemplateConfiguration {
         isTargetFrameworkAboveNet6: boolean,
         useImplicitUsings: boolean,
         implictUsings: Array<string>,
-        customTemplate?: CustomTemplate
+        customTemplate?: CustomTemplate,
+        tabSize = 4,
+        useSpaces = true,
     ): Result<TemplateConfiguration> {
+        if (tabSize < 1) {
+            return Result.error<TemplateConfiguration>(
+                templateConfigurationStatuses.templateConfigurationCreationError,
+                'Tab Size must be a positive number',
+            );
+        }
+
         if (type === TemplateType.Record && !isTargetFrameworkAboveNet6) {
             return Result.error<TemplateConfiguration>(
                 templateConfigurationStatuses.templateConfigurationCreationError,
@@ -92,6 +109,8 @@ export default class TemplateConfiguration {
                 optionalUsings,
                 useImplicitUsings,
                 implictUsings,
+                tabSize,
+                useSpaces,
                 customTemplate,
             )
         );

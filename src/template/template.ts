@@ -90,9 +90,11 @@ export default class Template {
         }
 
         const eol = this._configuration.getEolSettings();
+        const tabSize = this._configuration.getTabSize();
+        const fillingString = this._configuration.getUseSapces() ? SPACE : '\t';
 
         const indentationLevel = this._configuration.getUseFileScopedNamespace() ? 1 : 2;
-        const indentation = getIndentation(4, indentationLevel);
+        const indentation = getIndentation(tabSize, indentationLevel, fillingString);
 
         return `${eol}${customTemplate.genericsWhereClauses
             .map((gwc) => `${indentation}${gwc}`)
@@ -106,8 +108,10 @@ export default class Template {
         }
 
         const eol = this._configuration.getEolSettings();
+        const tabSize = this._configuration.getTabSize();
+        const fillingString = this._configuration.getUseSapces() ? SPACE : '\t';
         const indentationLevel = this._configuration.getUseFileScopedNamespace() ? 0 : 1;
-        const indentation = indentationLevel > 0 ? getIndentation(4, indentationLevel) : EMPTY;
+        const indentation = indentationLevel > 0 ? getIndentation(tabSize, indentationLevel, fillingString) : EMPTY;
 
         return `${customTemplate.attributes
             .map(a => `[${indentation}${a.replace('\n', EMPTY).replace('${classname}', filename)}]`)

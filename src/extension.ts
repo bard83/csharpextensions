@@ -126,6 +126,8 @@ export class Extension {
         const eol = configuration.get('file.eol', EOL);
         const usingsInclude = configuration.get(`${EXTENSION_NAME}.usings.include`, true);
         const usingsImplicit = configuration.get(`${EXTENSION_NAME}.usings.implicit`, true);
+        const tabSize = configuration.get('editor.tabSize', 4);
+        const useSpaces = configuration.get('editor.useSpaces', true);
         const useFileScopedNamespace = configuration.get<boolean>(`${EXTENSION_NAME}.useFileScopedNamespace`, false);
         const csprojReader = await CsprojReader.createFromPath(`${pathWithoutExtension}.cs`);
         const isTargetFrameworkAboveEqualNet6 = await csprojReader?.isTargetFrameworkHigherThanOrEqualToDotNet6() === true;
@@ -156,6 +158,8 @@ export class Extension {
                 useImplicitUsings,
                 globalUsings,
                 customTemplate,
+                tabSize,
+                useSpaces,
             )
                 .AndThen(config => CSharpFileCreator.create(config)
                     .AndThen(async creator => await creator.create(templatesPath, pathWithoutExtension, newFilename)));
