@@ -17,13 +17,10 @@ import {
     Selection,
 } from 'vscode';
 import * as os from 'os';
-import { getEolSetting } from './util';
+import { getEolSetting, getIndentation } from './util';
 import Result from './common/result';
 import { formatDocument } from './document/documentAction';
 import { log } from './logging/log';
-
-const EMPTY = '';
-const SPACE = ' ';
 
 export default class CodeActionProvider implements VSCodeCodeActionProvider {
     private _commandIds = {
@@ -171,7 +168,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
     }
 
     private _getIndentation(tabSize: number, indentation: number): string {
-        return EMPTY.padStart((tabSize * indentation), SPACE);
+        return getIndentation(tabSize, indentation);
     }
 
     private async formatDocument(documentUri: Uri) {
