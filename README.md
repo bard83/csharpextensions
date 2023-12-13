@@ -74,7 +74,7 @@ The custom template must be defined in the vscode `settings.json` file. Access t
 
 `genericsWhereClauses` used to define the generics where clauses inside the custom template.
 
-`body` body of template. It might be whatever C# code.
+`body` body of template. It might be whatever C# code. The placeholder `${classname}` gets replaced with the file name if it's defined.
 
 Please note that the code defined inside the custom template should be valid C# code. This extension does not perform any validation on it.
 
@@ -89,4 +89,7 @@ Please note that the code defined inside the custom template should be valid C# 
 MIT
 
 See [licence.txt](./licence.txt)
-Legacy Repository: [jchannon/csharpextensions](https://github.com/jchannon/csharpextensions)
+
+Legacy Repositories:
+- [jchannon/csharpextensions](https://github.com/jchannon/csharpextensions)
+- [KreativJos/csharpextensions](https://github.com/KreativJos/csharpextensions)

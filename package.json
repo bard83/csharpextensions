@@ -4,7 +4,7 @@
     "description": "C# IDE Extension for VSCode",
     "author": "Bard83",
     "license": "MIT",
-    "version": "1.10.3",
+    "version": "1.10.0",
     "publisher": "bard83",
     "engines": {
         "vscode": "^1.63.0"

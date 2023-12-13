@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.10.0] - 2023-12-13
+
+### Added
+
+- Custom templates support for Attributes and generics.
+- File name replaced in custom template body.
+
+### Improved
+
+- Bumped dependecies and dev dependencies.
+- Code refactor.
+
 ## [1.9.0] - 2023-11-03
 
 ### Added
