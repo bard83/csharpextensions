@@ -23,7 +23,7 @@ jobs:
           git checkout $LATEST_TAG
 
       - name: Prepare Artifact Folder
-        run: mkdir out/artifact
+        run: mkdir -p out/artifact
 
       - name: Prepare Package
         uses: actions/setup-node@v3
