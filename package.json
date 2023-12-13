@@ -7,7 +7,7 @@
     "version": "1.10.0",
     "publisher": "bard83",
     "engines": {
-        "vscode": "^1.63.0"
+        "vscode": "^1.84.0"
     },
     "repository": {
         "type": "git",
