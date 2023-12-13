@@ -29,10 +29,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
+      - run: | 
+          rm -rf node_modules
+          rm yarn.lock
+          yarn cache clean
+          yarn install
+          npm i -g @vscode/vsce
 
       - name: Build extension
         run: |
-          npm i -g @vscode/vsce
           vsce package --yarn -o csharpextension-${GITHUB_REF#refs/tags/}.vsix
           mv csharpextension-${GITHUB_REF#refs/tags/}.vsix out/artifact/csharpextension-${GITHUB_REF#refs/tags/}.vsix
 
