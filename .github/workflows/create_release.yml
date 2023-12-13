@@ -22,14 +22,25 @@ jobs:
           LATEST_TAG=${GITHUB_REF#refs/tags/}
           git checkout $LATEST_TAG
 
+      - name: Prepare Artifact Folder
+        run: mkdir out/artifact
+
       - name: Prepare Package
-        uses: DerYeger/yarn-setup-action@master
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Build extension
         run: |
+          npm i -g @vscode/vsce
           vsce package --yarn -o csharpextension-${GITHUB_REF#refs/tags/}.vsix
+          mv csharpextension-${GITHUB_REF#refs/tags/}.vsix out/artifact/csharpextension-${GITHUB_REF#refs/tags/}.vsix
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: csharpextension-artifact
+          path: out/artifact
 
   draft_release:
     name: Draft Release
@@ -44,9 +55,15 @@ jobs:
         id: get_tag
         run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
 
+      - name: Download Artifact
+        uses: actions/download-artifact@master
+        with:
+          name: csharpextension-artifact
+          path: out/artifact
+
       - name: Create Draft Release
         id: draft_release
         uses: softprops/action-gh-release@v1
         with:
-          files: 'csharpextension-${GITHUB_REF#refs/tags/}.vsix'
+          files: 'out/artifact/csharpextension-${GITHUB_REF#refs/tags/}.vsix'
           draft: true
