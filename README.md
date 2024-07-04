@@ -1,8 +1,8 @@
-# Customized version of <https://github.com/jchannon/csharpextensions> -> <https://github.com/KreativJos/csharpextensions> -> <https://github.com/bard83/csharpextensions>
+# Customized version of <a href="https://github.com/jchannon/csharpextensions">jchannon/csharpextensions</a> → <a href="https://github.com/KreativJos/csharpextensions">KreativJos/csharpextensions</a>  → <a href="https://github.com/bard83/csharpextensions">bard83/csharpextensions</a> 
 
 # C# Extensions
 
-Welcome to C# Extensions.  This VSCode extension provides extensions to the IDE that will hopefully speed up your development workflow.
+Welcome to C# Extensions. This VSCode extension provides extensions to the IDE that will hopefully speed up your development workflow.
 It can currently be found at:
 
 - [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=bard83.csharpextension)
