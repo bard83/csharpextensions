@@ -23,17 +23,25 @@ import { formatDocument } from './document/documentAction';
 import { log } from './logging/log';
 
 export default class CodeActionProvider implements VSCodeCodeActionProvider {
-    private _commandIds = {
-        ctorFromProperties: 'csharpextensions.ctorFromProperties',
-        bodyExpressionCtorFromProperties: 'csharpextensions.bodyExpressionCtorFromProperties',
+    private _actionsMapping: ActionMappingType = {
+        ctorFromProperties: {
+            command: 'csharpextensions.ctorFromProperties',
+            buildAction: this._buildCtorActions,
+            label: 'Initialize ctor from properties...',
+        },
+        bodyExpressionCtorFromProperties: {
+            command: 'csharpextensions.bodyExpressionCtorFromProperties',
+            buildAction: this._buildCtorActions,
+            label: 'Initialize body expression ctor from properties...',
+        },
     };
 
     private static readonly ReadonlyRegex = new RegExp(/(public|private|protected)\s(\w+)\s(\w+)\s?{\s?(get;)\s?(private\s)?(set;)?\s?}/g);
     private static readonly ClassRegex = new RegExp(/(private|internal|public|protected)\s?(static)?\sclass\s(\w*)/g);
 
     constructor() {
-        commands.registerCommand(this._commandIds.ctorFromProperties, this.executeCtorFromProperties, this);
-        commands.registerCommand(this._commandIds.bodyExpressionCtorFromProperties, this.executeBodyExpressionCtorFromProperties, this);
+        commands.registerCommand(this._actionsMapping.ctorFromProperties.command, this.executeCtorFromProperties, this);
+        commands.registerCommand(this._actionsMapping.bodyExpressionCtorFromProperties.command, this.executeBodyExpressionCtorFromProperties, this);
     }
 
     public provideCodeActions(document: TextDocument, range: Range | Selection, context: CodeActionContext): CodeAction[] {
@@ -45,20 +53,19 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         const resultEditor = this._getActiveTextEditor();
 
         if (resultEditor.isErr()) {
-            console.error(resultEditor.info());
+            log(resultEditor.info()!);
 
             return codeActions;
         }
 
         const editor = resultEditor.value();
-        const ctorActionResult = this._buildCtorActions(document, editor, 'Initialize ctor from properties...', this._commandIds.ctorFromProperties);
-        if (ctorActionResult.isOk()) {
-            codeActions.push(ctorActionResult.value());
-        }
-
-        const bodyExpressionCtorAction = this._buildCtorActions(document, editor, 'Initialize body expression ctor from properties...', this._commandIds.bodyExpressionCtorFromProperties);
-        if (bodyExpressionCtorAction.isOk()) {
-            codeActions.push(bodyExpressionCtorAction.value());
+        for (const key in this._actionsMapping) {
+            const actionMappingKey = key as keyof ActionMappingType;
+            const { command, buildAction, label } = this._actionsMapping[actionMappingKey];
+            const actionResult = buildAction({ document, editor, actionTitle: label, command });
+            if (actionResult.isOk()) {
+                codeActions.push(actionResult.value());
+            }
         }
 
         return codeActions;
@@ -179,8 +186,10 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         }
     }
 
-    private _buildCtorActions(document: TextDocument, editor: TextEditor, actionTitle: string, command: string): Result<CodeAction> {
-        return this._findCtorDefinitionAndProperties(document, editor)
+    private _buildCtorActions(args: BuildActionArgument): Result<CodeAction> {
+        const { document, editor, actionTitle, command } = args;
+
+        return CodeActionProvider.handleCtorDefinitionAndProperties(document, editor)
             .AndThenSync(classDefinition => {
                 const parameter: ConstructorFromPropertiesArgument = {
                     properties: classDefinition.properties,
@@ -201,11 +210,11 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
             });
     }
 
-    private _findCtorDefinitionAndProperties(document: TextDocument, editor: TextEditor): Result<CSharpClass> {
+    private static handleCtorDefinitionAndProperties(document: TextDocument, editor: TextEditor): Result<CSharpClass> {
         const position = editor.selection.active;
 
-        return this._findFileScopedNamespace(document)
-            .AndThenSync((isFileScoped) => this._findClassFromLine(document, position.line)
+        return CodeActionProvider.findFileScopedNamespace(document)
+            .AndThenSync((isFileScoped) => CodeActionProvider.findClassFromLine(document, position.line)
                 .AndThenSync((withinClass) => {
                     const properties = new Array<CSharpPropertyDefinition>();
                     let lineNo = 0;
@@ -215,7 +224,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
 
                         const match = Array.from(textLine.text.trim().matchAll(CodeActionProvider.ReadonlyRegex));
                         if (match.length > 0) {
-                            const resultFoundClass = this._findClassFromLine(document, lineNo);
+                            const resultFoundClass = CodeActionProvider.findClassFromLine(document, lineNo);
 
                             if (resultFoundClass.isOk() && resultFoundClass.value().className === withinClass.className) {
                                 const prop: CSharpPropertyDefinition = {
@@ -242,7 +251,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
                 }));
     }
 
-    private _findFileScopedNamespace(document: TextDocument): Result<boolean> {
+    private static findFileScopedNamespace(document: TextDocument): Result<boolean> {
         let lineNo = 0;
         let isFileScopedNamespace = false;
         while (lineNo < document.lineCount) {
@@ -261,7 +270,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         return Result.error<boolean>('NameSpaceNotFoundError', 'Class does not have a namespace');
     }
 
-    private _findClassFromLine(document: TextDocument, lineNo: number): Result<CSharpClassDefinition> {
+    private static findClassFromLine(document: TextDocument, lineNo: number): Result<CSharpClassDefinition> {
         if (!lineNo) lineNo = document.lineCount - 1;
         if (lineNo >= document.lineCount) lineNo = document.lineCount - 1;
 
@@ -287,32 +296,28 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
     }
 }
 
-interface CSharpClassDefinition {
-    startLine: number,
-    endLine: number,
-    className: string,
-    modifier: string,
-    statement: string
-}
-
-interface CSharpPropertyDefinition {
-    class: CSharpClassDefinition,
-    modifier: string,
-    type: string,
-    name: string,
-    statement: string,
-    lineNumber: number
-}
-
-interface CSharpClass {
-    properties: CSharpPropertyDefinition[],
-    classDefinition: CSharpClassDefinition,
-    isFileScoped: boolean,
-}
-
 interface ConstructorFromPropertiesArgument {
     document: TextDocument,
     classDefinition: CSharpClassDefinition,
     properties: CSharpPropertyDefinition[],
     isFileScopedNamespace: boolean,
 }
+
+interface BuildActionArgument {
+    document: TextDocument;
+    editor: TextEditor;
+    actionTitle: string;
+    command: string;
+}
+
+type BuildAction = (args: BuildActionArgument) => Result<CodeAction>;
+type MappingType = {
+    command: string;
+    buildAction: BuildAction;
+    label: string
+};
+
+type ActionMappingType = {
+    ctorFromProperties: MappingType;
+    bodyExpressionCtorFromProperties: MappingType;
+};
