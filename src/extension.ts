@@ -76,8 +76,7 @@ export class Extension {
             return;
         }
 
-        // the output will be always of type string
-        let newFilename = await vscode.window.showInputBox({
+        const inputFilename = await vscode.window.showInputBox({
             ignoreFocusOut: true,
             prompt: 'Please enter a name for the new file(s)',
             value: `New${hintName}`,
@@ -86,7 +85,14 @@ export class Extension {
                     return 'Filename request: User did not provide any input';
                 }
             },
-        }) as string;
+        });
+
+        // filename hasn't been typed due to escape action
+        if (!inputFilename) {
+            return;
+        }
+
+        let newFilename = inputFilename as string;
 
         if (newFilename.endsWith('.cs')) newFilename = newFilename.substring(0, newFilename.length - 3);
         const configuration = vscode.workspace.getConfiguration();
