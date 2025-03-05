@@ -1,0 +1,45 @@
+
+name: Pull-Requests
+run-name: "Pull Request Workflow"
+
+on:
+  pull_request:
+    types:
+      - "opened"
+      - "synchronize"
+      - "reopened"
+env:
+  NODE_VERSION: '16'
+
+jobs:
+  test:
+    name: Test
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{matrix.os}}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    - run: | 
+       rm -rf node_modules
+       rm yarn.lock
+      if: runner.os != 'Windows'
+    - run: | 
+       Remove-Item node_modules -r -force -ErrorAction Ignore
+       Remove-Item yarn.lock
+      if: runner.os == 'Windows'
+    - run: yarn cache clean
+    - name: Install dependencies
+      run: yarn install
+    - name: Build extension
+      run: yarn compile
+    - run: xvfb-run -a yarn test
+      if: runner.os == 'Linux'
+    - run: yarn test
+      if: runner.os != 'Linux'
