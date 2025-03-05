@@ -40,29 +40,3 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
-
-  bump-minor:
-    name: Bump Minor Version
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-            ref: master
-
-      - name: Bump version for next release
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          VERSION=$(perl -ne 'while (m|"version"\W+([\d\.]+)|g) {print "$1"}' package.json)
-          NEXT_VERSION=$(echo "$VERSION" | perl -pe 's/^(\d+)(\.)(\d+).*$/$1.$2.($3+1).$2.0/e')
-          echo "Increasing version to $NEXT_VERSION"
-          perl -pi -e "s|(\"version\"\W+)([\d\.]+)|\${1}${NEXT_VERSION}|" package.json
-          git commit -a -m "Increased version after release publication to $NEXT_VERSION [skip ci]"
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch:  master
