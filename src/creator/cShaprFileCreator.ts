@@ -34,7 +34,11 @@ export default class CSharpFileCreator {
 
         const template = new Template(this._template, templateContent, this._templateConfiguration);
         const namespaceDetector = new NamespaceDetector(pathWithoutExtension);
-        const namespace = await namespaceDetector.getNamespace();
+        let namespace = 'NameSpaceToBeReplaced';
+        const detectedNamespace = await namespaceDetector.getNamespace();
+        if (detectedNamespace) {
+            namespace = detectedNamespace;
+        }
 
         const fileContent = template.build(newFilename, namespace);
         try {
