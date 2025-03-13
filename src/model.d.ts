@@ -48,3 +48,18 @@ type CreatedFile = {
     filePath: string,
     cursorPositionArray: number[] | null,
 }
+
+interface MultiStepInputFilenameParameters {
+    title: string,
+    inputValue: string,
+    filePath: string | undefined,
+    rootPath: string,
+}
+
+interface State {
+    title: string;
+    step: number;
+    totalSteps: number;
+    path: string;
+    name: string;
+}

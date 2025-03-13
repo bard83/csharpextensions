@@ -13,6 +13,7 @@ import CsprojReader from './project/csprojReader';
 import GlobalUsingFinder from './project/globalUsings';
 import { uniq } from 'lodash';
 import { formatDocument, openFile } from './document/documentAction';
+import { showMultiStepInputFilename } from './ui/createMultiStepInputFileName';
 
 const EXTENSION_NAME = 'csharpextensions';
 
@@ -56,23 +57,11 @@ export class Extension {
             return Maybe.some<string>(path.dirname(vscode.window.activeTextEditor?.document.fileName));
         }
 
-        if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length) {
-            return Maybe.some<string>(vscode.workspace.workspaceFolders[0].uri.fsPath);
-        }
-
         return Maybe.none<string>();
     }
 
     public async startExecutor(options: RegisterCommandCallbackArgument, hintName: string, mapping: CommandMapping): Promise<void> {
         Logger.debug('Extension starting executor');
-        const maybeIncomingPath = this._getIncomingPath(options);
-
-        if (maybeIncomingPath.isNone()) {
-            vscode.window.showErrorMessage(`Could not find the path for this action.${EOL}If this problem persists, please create an issue in the github repository.`);
-
-            return;
-        }
-
         const extension = Extension.GetCurrentVscodeExtension();
 
         if (!extension) {
@@ -81,23 +70,37 @@ export class Extension {
             return;
         }
 
-        const inputFilename = await vscode.window.showInputBox({
-            ignoreFocusOut: true,
-            prompt: 'Please enter a name for the new file(s)',
-            value: `New${hintName}`,
-            validateInput(inputValue: string): string | undefined {
-                if (typeof inputValue === 'undefined' || inputValue.trim() === '') {
-                    return 'Filename request: User did not provide any input';
-                }
-            },
-        });
+        if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+            vscode.window.showErrorMessage('Weird, no workspace folders avalaible');
 
-        // filename hasn't been typed due to escape action
-        if (!inputFilename) {
             return;
         }
 
-        let newFilename = inputFilename as string;
+        const rootProjectPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+
+        const maybeIncomingPath = this._getIncomingPath(options);
+
+        const destinationPath: string | undefined = maybeIncomingPath.isNone() ? undefined : maybeIncomingPath.value().replace(rootProjectPath, '');
+
+        const inputResult = await showMultiStepInputFilename({
+            title: `New ${hintName}`,
+            inputValue: `New${hintName}`,
+            filePath: destinationPath,
+            rootPath: rootProjectPath
+        } as MultiStepInputFilenameParameters);
+
+        // filename hasn't been typed due to escape action
+        if (!inputResult.name) {
+            return;
+        }
+
+        const incomingPath = inputResult.path ?? rootProjectPath;
+        // filepath hasn't been typed due to escape action
+        if (!inputResult.path || inputResult.path === rootProjectPath) {
+            Logger.warn(`The file path hasn't been typed, the file will be created in ${rootProjectPath}`);
+        }
+
+        let newFilename = inputResult.name;
 
         if (newFilename.endsWith('.cs')) newFilename = newFilename.substring(0, newFilename.length - 3);
         const configuration = vscode.workspace.getConfiguration();
@@ -129,7 +132,6 @@ export class Extension {
             return;
         }
 
-        const incomingPath = maybeIncomingPath.value();
         const templatesPath = path.join(extension.extensionPath, Extension.TemplatesPath);
         const pathWithoutExtension = `${incomingPath}${path.sep}${newFilename}`;
 

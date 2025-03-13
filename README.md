@@ -32,6 +32,11 @@ It can currently be found at:
 
 This extension traverses up the folder tree to find the project.json or *.csproj and uses that as the parent folder to determine namespaces.
 
+### Command Palette execution
+
+CSharp items can be created from the VSCode command palette (i.e. Class, Interface, Struct and so on.). The extension determinates the destination path based on the current opened file in the editor.
+In case no files are currently opened in the editor, it will be shown an input box where the destination path must be typed. The destination path must be valid and within the workspace folder. In case the input path is left empty the final destination path will be the current workspace folder.
+
 ### Custom Templates
 
 #### Definition
