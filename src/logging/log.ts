@@ -1,43 +1,29 @@
-import { OutputChannel, window } from 'vscode';
-import { ExtensionError } from '../errors/extensionError';
+import { LogOutputChannel, window } from 'vscode';
 
-let logChannel: OutputChannel | undefined;
+export class Logger {
+    private static output: LogOutputChannel;
 
-function getLogChannel(): OutputChannel {
-    if (!logChannel) {
-        logChannel = window.createOutputChannel('C# Extension');
+    public static init(): void {
+        Logger.output = window.createOutputChannel('C# Extension', { log: true });
     }
 
-    return logChannel;
-}
-
-function combineMessage(message: string | object, error: object | string | unknown | undefined): string {
-    if (!error) return JSON.stringify(message);
-
-    const errLog: { error: unknown, internalError: unknown } = {
-        error,
-        internalError: undefined
-    };
-
-    if (error instanceof ExtensionError) {
-        errLog.internalError = (error as ExtensionError).getInternalError();
+    public static error(error: string | Error): void {
+        Logger.output.error(error);
     }
 
-    const errLogJson = JSON.stringify(errLog);
+    public static warn(msg: string): void {
+        Logger.output.warn(msg);
+    }
 
-    return `${JSON.stringify(message)} - ${errLogJson}`;
-}
+    public static info(msg: string): void {
+        Logger.output.info(msg);
+    }
 
-export function log(message: string | object, error: object | string | unknown | undefined = undefined) {
-    const log = getLogChannel();
-    const combinedMessage = combineMessage(message, error);
+    public static debug(msg: string): void {
+        Logger.output.debug(msg);
+    }
 
-    log.appendLine(combinedMessage);
-}
-
-export function showAndLogErrorMessage(errorMessage: string, error: object | string | unknown | undefined) {
-    log(errorMessage, error);
-
-    if (error) window.showErrorMessage(`${errorMessage} - See extension log for more info`);
-    else window.showErrorMessage(errorMessage);
+    public static trace(msg: string): void {
+        Logger.output.trace(msg);
+    }
 }

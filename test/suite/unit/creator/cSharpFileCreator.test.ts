@@ -9,6 +9,7 @@ import TemplateConfiguration from '../../../../src/template/templateConfiguratio
 import { TemplateType } from '../../../../src/template/templateType';
 import statuses from '../../../../src/creator/fileCreatorStatus';
 import FileHandler from '../../../../src/io/fileHandler';
+import { Logger } from '../../../../src/logging/log';
 
 suite('CSharpFileCreator', () => {
     let fakeFileHandler: {
@@ -41,6 +42,7 @@ suite('CSharpFileCreator', () => {
         sinon.replace(FileHandler, 'fileExists', fakeFileHandler.fileExists);
         sinon.replace(FileHandler, 'read', fakeFileHandler.read);
         sinon.replace(FileHandler, 'write', fakeFileHandler.write);
+        sinon.replace(Logger, 'debug', () => {});
         const useFileScopedNamespace = false;
         const error = `File already exists: ${destinationFilePath}`;
 
@@ -61,6 +63,7 @@ suite('CSharpFileCreator', () => {
         sinon.replace(FileHandler, 'fileExists', fakeFileHandler.fileExists);
         sinon.replace(FileHandler, 'read', fakeFileHandler.read);
         sinon.replace(FileHandler, 'write', fakeFileHandler.write);
+        sinon.replace(Logger, 'debug', () => {});
         const configuration = TemplateConfiguration.create(TemplateType.Class, EOL, false, true, true, true, []).value();
         const fileCreator = CSharpFileCreator.create(configuration).value();
 
@@ -77,6 +80,7 @@ suite('CSharpFileCreator', () => {
         sinon.replace(FileHandler, 'fileExists', fakeFileHandler.fileExists);
         sinon.replace(FileHandler, 'read', fakeFileHandler.read);
         sinon.replace(FileHandler, 'write', fakeFileHandler.write);
+        sinon.replace(Logger, 'debug', () => {});
         const configuration = TemplateConfiguration.create(TemplateType.Class, EOL, false, true, true, true, []).value();
         const fileCreator = CSharpFileCreator.create(configuration).value();
 
@@ -92,6 +96,7 @@ suite('CSharpFileCreator', () => {
         sinon.replace(FileHandler, 'fileExists', fakeFileHandler.fileExists);
         sinon.replace(FileHandler, 'read', fakeFileHandler.read);
         sinon.replace(FileHandler, 'write', fakeFileHandler.write);
+        sinon.replace(Logger, 'debug', () => {});
         const configuration = TemplateConfiguration.create(TemplateType.Class, EOL, false, true, true, true, []).value();
         const fileCreator = CSharpFileCreator.create(configuration).value();
 

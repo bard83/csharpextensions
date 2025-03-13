@@ -4,7 +4,7 @@ import * as path from 'path';
 import { EOL } from 'os';
 
 import CodeActionProvider from './codeActionProvider';
-import { log } from './logging/log';
+import { Logger } from './logging/log';
 import CSharpFileCreator from './creator/cShaprFileCreator';
 import Maybe from './common/maybe';
 import { CommandMapping, createExtensionMappings } from './commandMapping';
@@ -17,6 +17,8 @@ import { formatDocument, openFile } from './document/documentAction';
 const EXTENSION_NAME = 'csharpextensions';
 
 export function activate(context: vscode.ExtensionContext): void {
+    Logger.init();
+    Logger.debug('Activating extension');
     const extension = Extension.GetInstance();
 
     Extension.GetKnonwCommands().forEach((mapping, key) => {
@@ -38,7 +40,9 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(disposable);
 }
 
-export function deactivate(): void { /* Nothing to do here */ }
+export function deactivate(): void {
+    Logger.debug('Deactivating extension');
+}
 
 export class Extension {
     private constructor() { /**/ }
@@ -60,6 +64,7 @@ export class Extension {
     }
 
     public async startExecutor(options: RegisterCommandCallbackArgument, hintName: string, mapping: CommandMapping): Promise<void> {
+        Logger.debug('Extension starting executor');
         const maybeIncomingPath = this._getIncomingPath(options);
 
         if (maybeIncomingPath.isNone()) {
@@ -176,7 +181,7 @@ export class Extension {
                 .map(result => result.info()).filter(info => !!info)
                 .join(EOL);
 
-            log(error);
+            Logger.error(error);
             vscode.window.showErrorMessage(error);
 
             return;
@@ -198,7 +203,7 @@ export class Extension {
                 const uri = await openFile(createdFile.filePath, cursorPosition);
                 await formatDocument(uri);
             } catch (err) {
-                log(`Error trying to open the file path ${createdFile.filePath}`, err);
+                Logger.error(`Error trying to open the file path ${createdFile.filePath}: ${err}`);
             }
         }));
     }

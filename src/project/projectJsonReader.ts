@@ -1,5 +1,5 @@
 import { Uri, workspace } from 'vscode';
-import { log } from '../logging/log';
+import { Logger } from '../logging/log';
 import ProjectReader from './projectReader';
 
 export default class ProjectJsonReader extends ProjectReader {
@@ -23,7 +23,7 @@ export default class ProjectJsonReader extends ProjectReader {
 
             return jsonContent.tooling?.defaultNamespace;
         } catch (errParsingJson) {
-            log('Error parsing project json', errParsingJson);
+            Logger.error(`Error parsing project json: ${errParsingJson}`);
         }
 
         return;

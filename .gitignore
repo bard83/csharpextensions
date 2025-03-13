@@ -5,3 +5,5 @@ node_modules
 /yarn-error.log
 ovsx.key
 .vscode-test/
+test-results/
+coverage/

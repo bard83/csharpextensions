@@ -6,6 +6,7 @@ import TemplateConfiguration from '../template/templateConfiguration';
 import Result from '../common/result';
 import statuses from './fileCreatorStatus';
 import { ExtensionError } from '../errors/extensionError';
+import { Logger } from '../logging/log';
 
 
 export default class CSharpFileCreator {
@@ -18,6 +19,7 @@ export default class CSharpFileCreator {
     }
 
     public async create(templatesPath: string, pathWithoutExtension: string, newFilename: string): Promise<Result<CreatedFile>> {
+        Logger.debug('Creating CSharp File from template');
         const destinationFilePath = `${pathWithoutExtension}${Template.getExtension(this._template)}`;
         const exists = await FileHandler.fileExists(destinationFilePath);
 

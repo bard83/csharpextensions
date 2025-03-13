@@ -6,6 +6,7 @@ import * as sinon from 'sinon';
 
 import CsprojReader from '../../../src/project/csprojReader';
 import FileHandler from '../../../src/io/fileHandler';
+import { Logger } from '../../../src/logging/log';
 
 const fixture_path = path.resolve(__dirname, '../../suite/');
 interface Fixture {
@@ -382,6 +383,7 @@ suite('CsprojReader', () => {
             const filePath = `${fixture_path}/${filename}`;
             fakeFileHandler.read = sinon.fake.resolves(csproj);
             sinon.replace(FileHandler, 'read', fakeFileHandler.read);
+            sinon.replace(Logger, 'error', () => {});
 
             const detector = new CsprojReader(filePath);
             const actual = await detector.getRootNamespace();
@@ -392,6 +394,7 @@ suite('CsprojReader', () => {
             const filePath = `${fixture_path}/${filename}`;
             fakeFileHandler.read = sinon.fake.resolves(csproj);
             sinon.replace(FileHandler, 'read', fakeFileHandler.read);
+            sinon.replace(Logger, 'error', () => {});
             const detector = new CsprojReader(filePath);
             const actual = await detector.getTargetFramework();
 
@@ -404,6 +407,7 @@ suite('CsprojReader', () => {
             const filePath = `${fixture_path}/${filename}`;
             fakeFileHandler.read = sinon.fake.resolves(csproj);
             sinon.replace(FileHandler, 'read', fakeFileHandler.read);
+            sinon.replace(Logger, 'error', () => {});
             const detector = new CsprojReader(filePath);
             const actual = await detector.getRootNamespace();
 
@@ -417,6 +421,7 @@ suite('CsprojReader', () => {
             const read = sinon.stub(FileHandler, 'read');
             read.onCall(0).resolves(csproj);
             read.onCall(1).resolves(targets);
+            sinon.replace(Logger, 'error', () => {});
             const detector = new CsprojReader(filePath);
             const actual = await detector.getRootNamespace();
 
@@ -432,6 +437,7 @@ suite('CsprojReader', () => {
             const filePath = `${fixture_path}/${filename}`;
             fakeFileHandler.read = sinon.fake.resolves(csproj);
             sinon.replace(FileHandler, 'read', fakeFileHandler.read);
+            sinon.replace(Logger, 'error', () => {});
             const detector = new CsprojReader(filePath);
             const actual = await detector.getUsingsInclude();
 
@@ -444,6 +450,7 @@ suite('CsprojReader', () => {
             const filePath = `${fixture_path}/${filename}`;
             fakeFileHandler.read = sinon.fake.resolves(csproj);
             sinon.replace(FileHandler, 'read', fakeFileHandler.read);
+            sinon.replace(Logger, 'error', () => {});
             const detector = new CsprojReader(filePath);
             const actual = await detector.getUsingsRemove();
 
@@ -457,6 +464,7 @@ suite('CsprojReader', () => {
                 const filePath = `${fixture_path}/${index}-${filename}`;
                 fakeFileHandler.read = sinon.fake.resolves(csproj.replace('%PLACE_HOLDER%', targetFramework));
                 sinon.replace(FileHandler, 'read', fakeFileHandler.read);
+                sinon.replace(Logger, 'error', () => {});
                 const detector = new CsprojReader(filePath);
                 const actual = await detector.getTargetFramework();
 
@@ -466,6 +474,7 @@ suite('CsprojReader', () => {
                 const filePath = `${fixture_path}/${index}-${filename}`;
                 fakeFileHandler.read = sinon.fake.resolves(csproj.replace('%PLACE_HOLDER%', targetFramework));
                 sinon.replace(FileHandler, 'read', fakeFileHandler.read);
+                sinon.replace(Logger, 'error', () => {});
                 const detector = new CsprojReader(filePath);
                 let framework = undefined;
                 if (expected) {
@@ -487,6 +496,7 @@ suite('CsprojReader', () => {
                 const read = sinon.stub(FileHandler, 'read');
                 read.onCall(0).resolves(csproj);
                 read.onCall(1).resolves(targets.replace('%PLACE_HOLDER%', targetFramework));
+                sinon.replace(Logger, 'error', () => {});
                 const detector = new CsprojReader(filePath);
                 const actual = await detector.getTargetFramework();
 
@@ -500,6 +510,7 @@ suite('CsprojReader', () => {
                 const read = sinon.stub(FileHandler, 'read');
                 read.onCall(0).resolves(csproj);
                 read.onCall(1).resolves(targets.replace('%PLACE_HOLDER%', targetFramework));
+                sinon.replace(Logger, 'error', () => {});
                 const detector = new CsprojReader(filePath);
                 let framework = undefined;
                 if (expected) {

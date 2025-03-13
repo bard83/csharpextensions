@@ -20,7 +20,7 @@ import * as os from 'os';
 import { getEolSetting, getIndentation } from './util';
 import Result from './common/result';
 import { formatDocument } from './document/documentAction';
-import { log } from './logging/log';
+import { Logger } from './logging/log';
 
 export default class CodeActionProvider implements VSCodeCodeActionProvider {
     private _commandIds = {
@@ -45,7 +45,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         const resultEditor = this._getActiveTextEditor();
 
         if (resultEditor.isErr()) {
-            console.error(resultEditor.info());
+            Logger.error(resultEditor.info() ?? 'Impossible to get an active editor');
 
             return codeActions;
         }
@@ -175,7 +175,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         try {
             await formatDocument(documentUri);
         } catch (err) {
-            log('Error trying to format document - ', err);
+            Logger.error(`Error trying to format document - ${err}`);
         }
     }
 

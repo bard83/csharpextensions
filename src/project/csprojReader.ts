@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Parser } from 'xml2js';
-import { log } from '../logging/log';
+import { Logger } from '../logging/log';
 
 import { Csproj, PropertyGroup, Using } from './csproj';
 import ProjectReader from './projectReader';
@@ -33,7 +33,7 @@ export default class CsprojReader extends ProjectReader {
 
             return propertyGroupWithRootNamespace.RootNamespace[0];
         } catch (errParsingXml) {
-            log('Error parsing project xml', errParsingXml);
+            Logger.error(`Error parsing project xml: ${errParsingXml}`);
         }
 
         return;
@@ -53,7 +53,7 @@ export default class CsprojReader extends ProjectReader {
 
             return propertyGroupWithTargetFramework.TargetFramework[0];
         } catch (errParsingXml) {
-            log('Error parsing project xml', errParsingXml);
+            Logger.error(`Error parsing project xml: ${errParsingXml}`);
         }
 
         return;
@@ -89,7 +89,7 @@ export default class CsprojReader extends ProjectReader {
             propertyGroups = await this.getPropertyGroups();
             propertyGroupWithImplicitUsings = propertyGroups?.find(p => p.ImplicitUsings);
         } catch (errParsingXml) {
-            console.error('Error parsing project xml', errParsingXml);
+            Logger.error(`Error parsing project xml: ${errParsingXml}`);
 
             return false;
         }
