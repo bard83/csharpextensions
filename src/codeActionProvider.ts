@@ -37,7 +37,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
     };
 
     private static readonly ReadonlyRegex = new RegExp(/(public|private|protected)\s(\w+)\s(\w+)\s?{\s?(get;)\s?(private\s)?(set;)?\s?}/g);
-    private static readonly ClassRegex = new RegExp(/(private|internal|public|protected)\s?(static)?\sclass\s(\w*)/g);
+    private static readonly ClassRegex = new RegExp(/(private|internal|public|protected)\s?(partial)?\sclass\s(\w*)/g);
 
     constructor() {
         commands.registerCommand(this._actionsMapping.ctorFromProperties.command, this.executeCtorFromProperties, this);
