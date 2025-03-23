@@ -37,7 +37,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
     };
 
     private static readonly ReadonlyRegex = new RegExp(/(public|private|protected)\s(\w+)\s(\w+)\s?{\s?(get;)\s?(private\s)?(set;)?\s?}/g);
-    private static readonly ClassRegex = new RegExp(/(private|internal|public|protected)\s?(partial)?\sclass\s(\w*)/g);
+    private static readonly ClassStructRegex = new RegExp(/(private|internal|public|protected)\s?(partial)?\s?(record)?\s(class|struct)\s(\w*)/g);
 
     constructor() {
         commands.registerCommand(this._actionsMapping.ctorFromProperties.command, this.executeCtorFromProperties, this);
@@ -214,8 +214,8 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         const position = editor.selection.active;
 
         return CodeActionProvider.findFileScopedNamespace(document)
-            .AndThenSync((isFileScoped) => CodeActionProvider.findClassFromLine(document, position.line)
-                .AndThenSync((withinClass) => {
+            .AndThenSync((isFileScoped) => CodeActionProvider.findClassOrStructFromLine(document, position.line)
+                .AndThenSync((withinClassOrStruct) => {
                     const properties = new Array<CSharpPropertyDefinition>();
                     let lineNo = 0;
 
@@ -224,12 +224,12 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
 
                         const match = Array.from(textLine.text.trim().matchAll(CodeActionProvider.ReadonlyRegex));
                         if (match.length > 0) {
-                            const resultFoundClass = CodeActionProvider.findClassFromLine(document, lineNo);
+                            const resultFoundClassOrStruct = CodeActionProvider.findClassOrStructFromLine(document, lineNo);
 
-                            if (resultFoundClass.isOk() && resultFoundClass.value().className === withinClass.className) {
+                            if (resultFoundClassOrStruct.isOk() && resultFoundClassOrStruct.value().className === withinClassOrStruct.className) {
                                 const prop: CSharpPropertyDefinition = {
                                     lineNumber: lineNo,
-                                    class: resultFoundClass.value(),
+                                    class: resultFoundClassOrStruct.value(),
                                     modifier: match[0][1],
                                     type: match[0][2],
                                     name: match[0][3],
@@ -247,7 +247,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
                         return Result.error<CSharpClass>('NotFoundError', 'Properties not found');
                     }
 
-                    return Result.ok<CSharpClass>({ properties, classDefinition: withinClass, isFileScoped });
+                    return Result.ok<CSharpClass>({ properties, classDefinition: withinClassOrStruct, isFileScoped });
                 }));
     }
 
@@ -270,20 +270,20 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         return Result.error<boolean>('NameSpaceNotFoundError', 'Class does not have a namespace');
     }
 
-    private static findClassFromLine(document: TextDocument, lineNo: number): Result<CSharpClassDefinition> {
+    private static findClassOrStructFromLine(document: TextDocument, lineNo: number): Result<CSharpClassDefinition> {
         if (!lineNo) lineNo = document.lineCount - 1;
         if (lineNo >= document.lineCount) lineNo = document.lineCount - 1;
 
         while (lineNo >= 0) {
             const line = document.lineAt(lineNo);
-            const match = Array.from(line.text.trim().matchAll(CodeActionProvider.ClassRegex));
+            const match = Array.from(line.text.trim().matchAll(CodeActionProvider.ClassStructRegex));
 
             if (match.length > 0) {
 
                 return Result.ok<CSharpClassDefinition>({
                     startLine: lineNo,
                     endLine: -1,
-                    className: match[0][3],
+                    className: match[0][match[0].length - 1],
                     modifier: match[0][1],
                     statement: match[0][0]
                 });
