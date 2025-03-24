@@ -126,7 +126,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
 
         const reFormatAfterChange = configuration.get('csharpextensions.reFormatAfterChange', true);
         if (reFormatAfterChange) {
-            await this.formatDocument(args.document.uri);
+            await this.performDocumentFormatting(args.document.uri);
         }
     }
 
@@ -170,7 +170,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
 
         const reFormatAfterChange = configuration.get('csharpextensions.reFormatAfterChange', true);
         if (reFormatAfterChange) {
-            await this.formatDocument(args.document.uri);
+            await this.performDocumentFormatting(args.document.uri);
         }
     }
 
@@ -178,7 +178,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         return getIndentation(tabSize, indentation);
     }
 
-    private async formatDocument(documentUri: Uri) {
+    private async performDocumentFormatting(documentUri: Uri) {
         try {
             await formatDocument(documentUri);
         } catch (err) {
