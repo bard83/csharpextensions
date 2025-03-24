@@ -34,10 +34,21 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
             buildAction: this._buildCtorActions,
             label: 'Initialize body expression ctor from properties...',
         },
+        recordStruct: {
+            command: 'csharpextensions.recordStruct',
+            buildAction: this._buildStructActions,
+            label: 'Convert to record struct...',
+        },
+        readonlyStruct: {
+            command: 'csharpextensions.readonlyStruct',
+            buildAction: this._buildStructActions,
+            label: 'Convert to readonly struct...',
+        },
     };
 
     private static readonly PropertyRegex = new RegExp(/(public|private|protected)\s(\w+)\s(\w+)\s?{\s?(get;)\s?(private\s)?(set;)?\s?}/g);
     private static readonly ClassStructRegex = new RegExp(/(private|internal|public|protected)\s?(partial)?\s?(record)?\s(class|struct)\s(\w*)/g);
+    private static readonly StructRegex = new RegExp(/(private|internal|public|protected)\s?(readonly)?\s?(partial)?\s?(record)?\sstruct\s(\w*)/g);
 
     constructor() {
         commands.registerCommand(this._actionsMapping.ctorFromProperties.command, this.executeCtorFromProperties, this);
@@ -210,6 +221,12 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
             });
     }
 
+    private _buildStructActions(args: BuildActionArgument): Result<CodeAction> {
+        console.log(args);
+
+        return Result.error<CodeAction>('NotImplemented', 'method not implemented');
+    }
+
     private static handleCtorDefinitionAndProperties(document: TextDocument, editor: TextEditor): Result<CSharpClass> {
         const position = editor.selection.active;
 
@@ -320,4 +337,6 @@ type MappingType = {
 type ActionMappingType = {
     ctorFromProperties: MappingType;
     bodyExpressionCtorFromProperties: MappingType;
+    recordStruct: MappingType;
+    readonlyStruct: MappingType;
 };
