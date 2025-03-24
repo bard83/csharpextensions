@@ -36,7 +36,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         },
     };
 
-    private static readonly ReadonlyRegex = new RegExp(/(public|private|protected)\s(\w+)\s(\w+)\s?{\s?(get;)\s?(private\s)?(set;)?\s?}/g);
+    private static readonly PropertyRegex = new RegExp(/(public|private|protected)\s(\w+)\s(\w+)\s?{\s?(get;)\s?(private\s)?(set;)?\s?}/g);
     private static readonly ClassStructRegex = new RegExp(/(private|internal|public|protected)\s?(partial)?\s?(record)?\s(class|struct)\s(\w*)/g);
 
     constructor() {
@@ -222,7 +222,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
                     while (lineNo < document.lineCount) {
                         const textLine = document.lineAt(lineNo);
 
-                        const match = Array.from(textLine.text.trim().matchAll(CodeActionProvider.ReadonlyRegex));
+                        const match = Array.from(textLine.text.trim().matchAll(CodeActionProvider.PropertyRegex));
                         if (match.length > 0) {
                             const resultFoundClassOrStruct = CodeActionProvider.findClassOrStructFromLine(document, lineNo);
 
