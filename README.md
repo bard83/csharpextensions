@@ -1,4 +1,4 @@
-# Customized version of <a href="https://github.com/jchannon/csharpextensions">jchannon/csharpextensions</a> → <a href="https://github.com/KreativJos/csharpextensions">KreativJos/csharpextensions</a>  → <a href="https://github.com/bard83/csharpextensions">bard83/csharpextensions</a> 
+# Customized version of <a href="https://github.com/jchannon/csharpextensions">jchannon/csharpextensions</a> → <a href="https://github.com/KreativJos/csharpextensions">KreativJos/csharpextensions</a>  → <a href="https://github.com/bard83/csharpextensions">bard83/csharpextensions</a>
 
 # C# Extensions
 
@@ -10,36 +10,40 @@ It can currently be found at:
 
 ## Features
 
-**Add C# Class**
-
-![Add C# Class](./featureimages/newclass.gif)
-
-**Add C# Enum**
-
-![Add C# Enum](./featureimages/newenum.gif)
-
-**Add C# Interface**
-
-![Add C# Interface](./featureimages/newinterface.gif)
-
-**Add constructor from properties**
-
-![Add constructor from properties](./featureimages/ctorfromprop.gif)
-
-**Add body expression constructor from properties**
-
-![Add body expression constructor from properties](./featureimages/bodyExpressionCtorAction.gif)
-
-This extension traverses up the folder tree to find the project.json or *.csproj and uses that as the parent folder to determine namespaces.
-
-### Command Palette execution
+C# Extensions provides a set of templates to create C# components like classes, interfaces, enums and so on. It also provides some code actions to generate constructors from properties and body expression constructors from properties.
 
 CSharp items can be created from the VSCode command palette (i.e. Class, Interface, Struct and so on.). The extension determinates the destination path based on the current opened file in the editor.
 In case no files are currently opened in the editor, it will be shown an input box where the destination path must be typed. The destination path must be valid and within the workspace folder. In case the input path is left empty the final destination path will be the current workspace folder.
 
-### Custom Templates
+This extension traverses up the folder tree to find the project.json or *.csproj and uses that as the parent folder to determine namespaces.
 
-#### Definition
+![List of features](./featureimages/extension_list.gif)
+
+### Default Templates
+
+C# Extensions provides the following templates:
+
+- **Add C# Class**: Creates a new C# class file with the specified name and the current namespace based on the folder structure. The class will be created with a default using section.
+
+![Add C# Class](./featureimages/create_class_template.gif)
+
+- **Add C# Interface**: Creates a new C# interface file with the specified name and the current namespace based on the folder structure.
+
+![Add C# Interface](./featureimages/create_interface_template.gif)
+
+- **Add C# Struct**: Creates a new C# struct file with the specified name and the current namespace based on the folder structure.
+
+![Add C# Struct](./featureimages/create_struct_template.gif)
+
+- **Add C# Record**: Creates a new C# record file with the specified name and the current namespace based on the folder structure. This template is available **only for Frameworks that support C# 9.0 or higher**.
+
+![Add C# Record](./featureimages/create_record_template.gif)
+
+- **Add C# Enum**: Creates a new C# enum file with the specified name and the current namespace based on the folder structure.
+
+![Add C# Enum](./featureimages/create_enum_template.gif)
+
+### Custom Templates
 
 The custom template must be defined in the vscode `settings.json` file. Access to File->Preference->Settings, Explode the Extensions section and select C# Extension then click on `edit in settings.json` .In the new section `csharpextensions.templates` must define the list of `items` which contain the custom templates. An item template is defined like below:
 
@@ -83,9 +87,21 @@ The custom template must be defined in the vscode `settings.json` file. Access t
 
 Please note that the code defined inside the custom template should be valid C# code. This extension does not perform any validation on it.
 
-**Add new custom template**
+- **Add new custom template**
 
 ![Add new custom template](./featureimages/customTemplate.gif)
+
+### Code Actions
+
+To activate the code actions, place the cursor on a class declaration and open the code actions menu (Ctrl + .). You will see the following options:
+
+- **Add constructor from properties**: Generates a constructor with parameters for each property in the class. The constructor will be created with the same visibility as the class.
+
+![Add constructor from properties](./featureimages/code_action_ctor_from_properties.gif)
+
+- **Add body expression constructor from properties**: Generates a constructor with parameters for each property in the class and initializes the properties using an expression body. The constructor will be created with the same visibility as the class.
+
+![Add body expression constructor from properties](./featureimages/code_action_body_expression_ctor_from_properties.gif)
 
 -----------------------------------------------------------------------------------------------------------
 
@@ -93,8 +109,9 @@ Please note that the code defined inside the custom template should be valid C# 
 
 MIT
 
-See [licence.txt](./licence.txt)
+See [LICENSE](./LICENSE.txt)
 
-Legacy Repositories:
+## Legacy Repositories
+
 - [jchannon/csharpextensions](https://github.com/jchannon/csharpextensions)
 - [KreativJos/csharpextensions](https://github.com/KreativJos/csharpextensions)
