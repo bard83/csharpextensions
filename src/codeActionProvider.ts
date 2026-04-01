@@ -23,17 +23,36 @@ import { formatDocument } from './document/documentAction';
 import { Logger } from './logging/log';
 
 export default class CodeActionProvider implements VSCodeCodeActionProvider {
-    private _commandIds = {
-        ctorFromProperties: 'csharpextensions.ctorFromProperties',
-        bodyExpressionCtorFromProperties: 'csharpextensions.bodyExpressionCtorFromProperties',
+    private _actionsMapping: ActionMappingType = {
+        ctorFromProperties: {
+            command: 'csharpextensions.ctorFromProperties',
+            buildAction: this._buildCtorActions,
+            label: 'Initialize ctor from properties...',
+        },
+        bodyExpressionCtorFromProperties: {
+            command: 'csharpextensions.bodyExpressionCtorFromProperties',
+            buildAction: this._buildCtorActions,
+            label: 'Initialize body expression ctor from properties...',
+        },
+        recordStruct: {
+            command: 'csharpextensions.recordStruct',
+            buildAction: this._buildStructActions,
+            label: 'Convert to record struct...',
+        },
+        readonlyStruct: {
+            command: 'csharpextensions.readonlyStruct',
+            buildAction: this._buildStructActions,
+            label: 'Convert to readonly struct...',
+        },
     };
 
-    private static readonly ReadonlyRegex = new RegExp(/(public|private|protected)\s(\w+)\s(\w+)\s?{\s?(get;)\s?(private\s)?(set;)?\s?}/g);
-    private static readonly ClassRegex = new RegExp(/(private|internal|public|protected)\s?(static)?\sclass\s(\w*)/g);
+    private static readonly PropertyRegex = new RegExp(/(public|private|protected)\s(\w+)\s(\w+)\s?{\s?(get;)\s?(private\s)?(set;)?\s?}/g);
+    private static readonly ClassStructRegex = new RegExp(/(private|internal|public|protected)\s?(partial)?\s?(record)?\s(class|struct)\s(\w*)/g);
+    private static readonly StructRegex = new RegExp(/(private|internal|public|protected)\s?(readonly)?\s?(partial)?\s?(record)?\sstruct\s(\w*)/g);
 
     constructor() {
-        commands.registerCommand(this._commandIds.ctorFromProperties, this.executeCtorFromProperties, this);
-        commands.registerCommand(this._commandIds.bodyExpressionCtorFromProperties, this.executeBodyExpressionCtorFromProperties, this);
+        commands.registerCommand(this._actionsMapping.ctorFromProperties.command, this.executeCtorFromProperties, this);
+        commands.registerCommand(this._actionsMapping.bodyExpressionCtorFromProperties.command, this.executeBodyExpressionCtorFromProperties, this);
     }
 
     public provideCodeActions(document: TextDocument, range: Range | Selection, context: CodeActionContext): CodeAction[] {
@@ -51,14 +70,13 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         }
 
         const editor = resultEditor.value();
-        const ctorActionResult = this._buildCtorActions(document, editor, 'Initialize ctor from properties...', this._commandIds.ctorFromProperties);
-        if (ctorActionResult.isOk()) {
-            codeActions.push(ctorActionResult.value());
-        }
-
-        const bodyExpressionCtorAction = this._buildCtorActions(document, editor, 'Initialize body expression ctor from properties...', this._commandIds.bodyExpressionCtorFromProperties);
-        if (bodyExpressionCtorAction.isOk()) {
-            codeActions.push(bodyExpressionCtorAction.value());
+        for (const key in this._actionsMapping) {
+            const actionMappingKey = key as keyof ActionMappingType;
+            const { command, buildAction, label } = this._actionsMapping[actionMappingKey];
+            const actionResult = buildAction({ document, editor, actionTitle: label, command });
+            if (actionResult.isOk()) {
+                codeActions.push(actionResult.value());
+            }
         }
 
         return codeActions;
@@ -119,7 +137,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
 
         const reFormatAfterChange = configuration.get('csharpextensions.reFormatAfterChange', true);
         if (reFormatAfterChange) {
-            await this.formatDocument(args.document.uri);
+            await this.performDocumentFormatting(args.document.uri);
         }
     }
 
@@ -163,7 +181,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
 
         const reFormatAfterChange = configuration.get('csharpextensions.reFormatAfterChange', true);
         if (reFormatAfterChange) {
-            await this.formatDocument(args.document.uri);
+            await this.performDocumentFormatting(args.document.uri);
         }
     }
 
@@ -171,7 +189,7 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         return getIndentation(tabSize, indentation);
     }
 
-    private async formatDocument(documentUri: Uri) {
+    private async performDocumentFormatting(documentUri: Uri) {
         try {
             await formatDocument(documentUri);
         } catch (err) {
@@ -179,8 +197,10 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         }
     }
 
-    private _buildCtorActions(document: TextDocument, editor: TextEditor, actionTitle: string, command: string): Result<CodeAction> {
-        return this._findCtorDefinitionAndProperties(document, editor)
+    private _buildCtorActions(args: BuildActionArgument): Result<CodeAction> {
+        const { document, editor, actionTitle, command } = args;
+
+        return CodeActionProvider.handleCtorDefinitionAndProperties(document, editor)
             .AndThenSync(classDefinition => {
                 const parameter: ConstructorFromPropertiesArgument = {
                     properties: classDefinition.properties,
@@ -201,26 +221,32 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
             });
     }
 
-    private _findCtorDefinitionAndProperties(document: TextDocument, editor: TextEditor): Result<CSharpClass> {
+    private _buildStructActions(args: BuildActionArgument): Result<CodeAction> {
+        console.log(args);
+
+        return Result.error<CodeAction>('NotImplemented', 'method not implemented');
+    }
+
+    private static handleCtorDefinitionAndProperties(document: TextDocument, editor: TextEditor): Result<CSharpClass> {
         const position = editor.selection.active;
 
-        return this._findFileScopedNamespace(document)
-            .AndThenSync((isFileScoped) => this._findClassFromLine(document, position.line)
-                .AndThenSync((withinClass) => {
+        return CodeActionProvider.findFileScopedNamespace(document)
+            .AndThenSync((isFileScoped) => CodeActionProvider.findClassOrStructFromLine(document, position.line)
+                .AndThenSync((withinClassOrStruct) => {
                     const properties = new Array<CSharpPropertyDefinition>();
                     let lineNo = 0;
 
                     while (lineNo < document.lineCount) {
                         const textLine = document.lineAt(lineNo);
 
-                        const match = Array.from(textLine.text.trim().matchAll(CodeActionProvider.ReadonlyRegex));
+                        const match = Array.from(textLine.text.trim().matchAll(CodeActionProvider.PropertyRegex));
                         if (match.length > 0) {
-                            const resultFoundClass = this._findClassFromLine(document, lineNo);
+                            const resultFoundClassOrStruct = CodeActionProvider.findClassOrStructFromLine(document, lineNo);
 
-                            if (resultFoundClass.isOk() && resultFoundClass.value().className === withinClass.className) {
+                            if (resultFoundClassOrStruct.isOk() && resultFoundClassOrStruct.value().className === withinClassOrStruct.className) {
                                 const prop: CSharpPropertyDefinition = {
                                     lineNumber: lineNo,
-                                    class: resultFoundClass.value(),
+                                    class: resultFoundClassOrStruct.value(),
                                     modifier: match[0][1],
                                     type: match[0][2],
                                     name: match[0][3],
@@ -238,11 +264,11 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
                         return Result.error<CSharpClass>('NotFoundError', 'Properties not found');
                     }
 
-                    return Result.ok<CSharpClass>({ properties, classDefinition: withinClass, isFileScoped });
+                    return Result.ok<CSharpClass>({ properties, classDefinition: withinClassOrStruct, isFileScoped });
                 }));
     }
 
-    private _findFileScopedNamespace(document: TextDocument): Result<boolean> {
+    private static findFileScopedNamespace(document: TextDocument): Result<boolean> {
         let lineNo = 0;
         let isFileScopedNamespace = false;
         while (lineNo < document.lineCount) {
@@ -261,20 +287,20 @@ export default class CodeActionProvider implements VSCodeCodeActionProvider {
         return Result.error<boolean>('NameSpaceNotFoundError', 'Class does not have a namespace');
     }
 
-    private _findClassFromLine(document: TextDocument, lineNo: number): Result<CSharpClassDefinition> {
+    private static findClassOrStructFromLine(document: TextDocument, lineNo: number): Result<CSharpClassDefinition> {
         if (!lineNo) lineNo = document.lineCount - 1;
         if (lineNo >= document.lineCount) lineNo = document.lineCount - 1;
 
         while (lineNo >= 0) {
             const line = document.lineAt(lineNo);
-            const match = Array.from(line.text.trim().matchAll(CodeActionProvider.ClassRegex));
+            const match = Array.from(line.text.trim().matchAll(CodeActionProvider.ClassStructRegex));
 
             if (match.length > 0) {
 
                 return Result.ok<CSharpClassDefinition>({
                     startLine: lineNo,
                     endLine: -1,
-                    className: match[0][3],
+                    className: match[0][match[0].length - 1],
                     modifier: match[0][1],
                     statement: match[0][0]
                 });
@@ -293,3 +319,24 @@ interface ConstructorFromPropertiesArgument {
     properties: CSharpPropertyDefinition[],
     isFileScopedNamespace: boolean,
 }
+
+interface BuildActionArgument {
+    document: TextDocument;
+    editor: TextEditor;
+    actionTitle: string;
+    command: string;
+}
+
+type BuildAction = (args: BuildActionArgument) => Result<CodeAction>;
+type MappingType = {
+    command: string;
+    buildAction: BuildAction;
+    label: string
+};
+
+type ActionMappingType = {
+    ctorFromProperties: MappingType;
+    bodyExpressionCtorFromProperties: MappingType;
+    recordStruct: MappingType;
+    readonlyStruct: MappingType;
+};
