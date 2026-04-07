@@ -8,20 +8,31 @@ It can currently be found at:
 - [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=bard83.csharpextension)
 - Open VSX (not yet published)
 
+## Table of Contents
+
+- [Features](#features)
+- [Default Templates](#default-templates)
+- [Custom Templates](#custom-templates)
+- [Code Actions](#code-actions)
+- [Configuration](#configuration)
+- [License](#license)
+- [Legacy Repositories](#legacy-repositories)
+
 ## Features
 
 C# Extensions provides a set of templates to create C# components like classes, interfaces, enums and so on. It also provides some code actions to generate constructors from properties and body expression constructors from properties.
 
 CSharp items can be created from the VSCode command palette (i.e. Class, Interface, Struct and so on.). The extension determinates the destination path based on the current opened file in the editor.
+
 In case no files are currently opened in the editor, it will be shown an input box where the destination path must be typed. The destination path must be valid and within the workspace folder. In case the input path is left empty the final destination path will be the current workspace folder.
 
-This extension traverses up the folder tree to find the project.json or *.csproj and uses that as the parent folder to determine namespaces.
+This extension traverses up the folder tree to find the `project.json` or `*.csproj` and uses that as the parent folder to determine namespaces.
 
 ![List of features](./featureimages/extension_list.gif)
 
 ### Default Templates
 
-C# Extensions provides the following templates:
+The C# Extensions tool provides multiple default templates for creating C# components, such as classes, interfaces, and enumerations. Some examples of these templates are:
 
 - **Add C# Class**: Creates a new C# class file with the specified name and the current namespace based on the folder structure. The class will be created with a default using section.
 
@@ -31,21 +42,11 @@ C# Extensions provides the following templates:
 
 ![Add C# Interface](./featureimages/create_interface_template.gif)
 
-- **Add C# Struct**: Creates a new C# struct file with the specified name and the current namespace based on the folder structure.
-
-![Add C# Struct](./featureimages/create_struct_template.gif)
-
-- **Add C# Record**: Creates a new C# record file with the specified name and the current namespace based on the folder structure. This template is available **only for Frameworks that support C# 9.0 or higher**.
-
-![Add C# Record](./featureimages/create_record_template.gif)
-
-- **Add C# Enum**: Creates a new C# enum file with the specified name and the current namespace based on the folder structure.
-
-![Add C# Enum](./featureimages/create_enum_template.gif)
+For more details about the default templates, please refer to the [Templates documentation](./TEMPLATES.md).
 
 ### Custom Templates
 
-The custom template must be defined in the vscode `settings.json` file. Access to File->Preference->Settings, Explode the Extensions section and select C# Extension then click on `edit in settings.json` .In the new section `csharpextensions.templates` must define the list of `items` which contain the custom templates. An item template is defined like below:
+C# extensions allows users to define custom templates to suit their specific needs. The custom template must be defined in the vscode `settings.json` file. Access to File->Preference->Settings, Explore the Extensions section and select C# Extension, then click on `edit in settings.json`. In the new section `csharpextensions.templates` must define the list of `items` which contain the custom templates. An item template is defined like below:
 
 ```json
 {
@@ -69,27 +70,21 @@ The custom template must be defined in the vscode `settings.json` file. Access t
 }
 ```
 
-`visibility` C# component visibility (public, private and etc...);
+Please note that the code defined inside **the custom template should be valid C# code**. This extension does not perform any validation on it.
 
-`construct` actually supported `class`, `interface` and `struct`;
+For more details about the custom templates, please refer to the [Templates documentation](./TEMPLATES.md).
 
-`header` is used to group all the necessary usings module. Each using must be separated by a `;`. The keyword `using` or the new line `\n` can be omitted. "using System;\nusing System.Runtime.Serialization;\nusing System.Text.Json;" and "System;System.Runtime.Serialization;System.Text.Json" produce the same output. Implicit usings rules will be applied.
+- **Modify settings.json to add new custom template**
 
-`genericsDefinition` used to specify the generics for the construct automatically enclosed between `<>`;
-
-`declaration` used to append all the necessary extended or implemented class or interface. The colon before the declaration will be automatically added. It could be used to add also generic clauses.
-
-`attributes` used to specify the attributes for the construct. The attributes must be specified in a list of string. Using the placeholder `${classname}` the construct name will be replaced instead.
-
-`genericsWhereClauses` used to define the generics where clauses inside the custom template.
-
-`body` body of template. It might be whatever C# code. The placeholder `${classname}` gets replaced with the file name if it's defined.
-
-Please note that the code defined inside the custom template should be valid C# code. This extension does not perform any validation on it.
+![Modify settings.json to add new custom template](./featureimages/search_custom_template.gif)
 
 - **Add new custom template**
 
-![Add new custom template](./featureimages/customTemplate.gif)
+![Add new custom template](./featureimages/create_custom_template.gif)
+
+- **Add a file using custom template**
+
+![Add sample custom template](./featureimages/create_sample_custom_template.gif)
 
 ### Code Actions
 
@@ -103,9 +98,13 @@ To activate the code actions, place the cursor on a class declaration and open t
 
 ![Add body expression constructor from properties](./featureimages/code_action_body_expression_ctor_from_properties.gif)
 
------------------------------------------------------------------------------------------------------------
+## Configuration
 
-## Licence
+C# Extensions can be configured to customize its behavior and features. The configuration options allow you to enable or disable specific features, set default values, and tailor the extension to your preferences.
+
+To see all the available configuration options, please refer to the [Configuration documentation](./CONFIG.md).
+
+## License
 
 MIT
 
