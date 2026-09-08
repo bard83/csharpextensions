@@ -212,6 +212,16 @@
         "configuration": {
             "title": "C# Extension",
             "properties": {
+                "csharpextensions.defaultAccessModifier": {
+                    "type": "string",
+                    "default": "public",
+                    "enum": [
+                        "public",
+                        "internal",
+                        "file"
+                    ],
+                    "description": "Default access modifier for generated basic C# types. (class, interface, struct, record and enum)"
+                },
                 "csharpextensions.templates": {
                     "type": "object",
                     "markdownDescription": "Defines custom templates, based on the custom sections `header`,`visibility`,`attributes`, `construct`, `declaration` and `body`.\n\nMore details in the related documentation on the README file",

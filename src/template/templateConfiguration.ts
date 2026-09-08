@@ -17,6 +17,7 @@ export default class TemplateConfiguration {
     private _useImplicitUsings: boolean;
     private _implicitUsings: Array<string>;
     private _customTemplate?: CustomTemplate;
+    private _defaultAccessModifier: AccessModifier;
 
     private constructor(
         templateType: TemplateType,
@@ -30,6 +31,7 @@ export default class TemplateConfiguration {
         tabSize: number,
         useSpaces: boolean,
         customTemplate?: CustomTemplate,
+        defaultAccessModifier: AccessModifier = 'public'
     ) {
         this._templateType = templateType;
         this._includeNamespaces = includeNamespaces;
@@ -42,6 +44,7 @@ export default class TemplateConfiguration {
         this._customTemplate = customTemplate;
         this._tabSize = tabSize;
         this._useSpaces = useSpaces;
+        this._defaultAccessModifier = defaultAccessModifier;
     }
 
     public getTemplateType(): TemplateType { return this._templateType; }
@@ -55,6 +58,7 @@ export default class TemplateConfiguration {
     public getCustomTemplate(): CustomTemplate | undefined { return this._customTemplate; }
     public getTabSize(): number { return this._tabSize; }
     public getUseSapces(): boolean{ return this._useSpaces; }
+    public getDefaultAccessModifier(): AccessModifier { return this._defaultAccessModifier; }
 
     public static create(
         type: TemplateType,
@@ -67,6 +71,7 @@ export default class TemplateConfiguration {
         customTemplate?: CustomTemplate,
         tabSize = 4,
         useSpaces = true,
+        defaultAccessModifier: AccessModifier = 'public'
     ): Result<TemplateConfiguration> {
         if (tabSize < 1) {
             return Result.error<TemplateConfiguration>(
@@ -112,6 +117,7 @@ export default class TemplateConfiguration {
                 tabSize,
                 useSpaces,
                 customTemplate,
+                defaultAccessModifier,
             )
         );
     }
