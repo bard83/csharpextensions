@@ -142,6 +142,10 @@ export class Extension {
         const tabSize = configuration.get('editor.tabSize', 4);
         const useSpaces = configuration.get('editor.useSpaces', true);
         const useFileScopedNamespace = configuration.get<boolean>(`${EXTENSION_NAME}.useFileScopedNamespace`, false);
+        const defaultAccessModifier = configuration.get<AccessModifier>(
+            `${EXTENSION_NAME}.defaultAccessModifier`,
+            'public'
+        );
         const csprojReader = await CsprojReader.createFromPath(`${pathWithoutExtension}.cs`);
         const isTargetFrameworkAboveEqualNet6 = await csprojReader?.isTargetFrameworkHigherThanOrEqualToDotNet6() === true;
         let globalUsings: string[] = [];
@@ -173,6 +177,7 @@ export class Extension {
                 customTemplate,
                 tabSize,
                 useSpaces,
+                defaultAccessModifier,
             )
                 .AndThen(config => CSharpFileCreator.create(config)
                     .AndThen(async creator => await creator.create(templatesPath, pathWithoutExtension, newFilename)));

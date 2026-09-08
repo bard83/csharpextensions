@@ -59,6 +59,15 @@ export default class Template {
             .replace(Template.NamespaceRegex, namespace)
             .replace(Template.ClassnameRegex, filename)
             .replace('${namespaces}', this._handleUsings());
+
+
+        if (this._configuration.getTemplateType() !== TemplateType.CustomTemplate) {
+            content = content.replace(
+                '${accessModifier}',
+                `${this._configuration.getDefaultAccessModifier()}`
+            );
+        }
+        
         if (this._configuration.getTemplateType() === TemplateType.CustomTemplate) {
             const customTemplate = this._configuration.getCustomTemplate() as CustomTemplate;
             const genericsDefinition = customTemplate.genericsDefinition

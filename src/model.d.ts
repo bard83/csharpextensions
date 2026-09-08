@@ -63,3 +63,8 @@ interface State {
     path: string;
     name: string;
 }
+
+type AccessModifier =
+    | 'public'
+    | 'private'
+    | 'file';
