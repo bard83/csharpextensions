@@ -1,6 +1,4 @@
 import { promises as fs } from 'fs';
-import * as path from 'path';
-import * as findupglob from 'find-up-glob';
 
 import { ExtensionError } from '../errors/extensionError';
 
@@ -41,10 +39,5 @@ export default class FileHandler {
 
     public static async readDirectory(path: string): Promise<string[]> {
         return await fs.readdir(path);
-    }
-
-    public static async findFilePath(fromPath: string, glob: string): Promise<string[] | null> {
-
-        return await findupglob( glob, { cwd: path.dirname(fromPath) });
     }
 }
