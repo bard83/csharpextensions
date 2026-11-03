@@ -1,5 +1,5 @@
+import { promises as fs } from 'fs';
 import * as path from 'path';
-import * as findupglob from 'find-up-glob';
 
 export default abstract class ProjectReader {
     protected readonly filePath: string;
@@ -58,10 +58,31 @@ export default abstract class ProjectReader {
         if (!filePatterns?.length) return;
 
         const filePattern = filePatterns[0];
-        const projectPaths: string[] = await findupglob(filePattern, { cwd: path.dirname(fromPath) });
+        const projectPath = await ProjectReader.findUp(path.dirname(fromPath), filePattern);
 
-        if (projectPaths?.length) return projectPaths[0];
+        if (projectPath) return projectPath;
 
         return await this.findProjectPath(fromPath, ...filePatterns.splice(1));
+    }
+
+    /**
+     * Walks up from 'dir' to the filesystem root, returning the first entry matching 'filePattern'
+     *
+     * @param dir The directory from where to start looking
+     * @param filePattern An exact file name, or '*' followed by a suffix (e.g. '*.csproj')
+     * @returns The found path, or undefined
+     */
+    private static async findUp(dir: string, filePattern: string): Promise<string | undefined> {
+        // ponytail: only literal names and '*suffix' patterns, the only ones callers use; add minimatch if real globs are needed
+        const matches = filePattern.startsWith('*')
+            ? (name: string) => !name.startsWith('.') && name.endsWith(filePattern.slice(1))
+            : (name: string) => name === filePattern;
+
+        for (let current = path.resolve(dir); ; current = path.dirname(current)) {
+            const found = (await fs.readdir(current)).find(matches);
+
+            if (found) return path.join(current, found);
+            if (path.dirname(current) === current) return;
+        }
     }
 }
